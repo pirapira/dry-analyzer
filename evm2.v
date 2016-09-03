@@ -177,8 +177,30 @@ Module Lang.
 
   (* sofar accumulates instructions in the reverse order *)
 
+  Open Scope string_scope.
+
   Fixpoint decode_inner (str : string) (m : decoding_mode)
            (sofar : list instr): decode_result :=
+  let after_0 (error_message : string) :=
+      match str with
+      | String "0" rest => decode_inner rest next_instr (STOP :: sofar)
+      | String "1" rest => decode_inner rest next_instr (ADD  :: sofar)
+      | String "2" rest => decode_inner rest next_instr (MUL  :: sofar)
+      | String "3" rest => decode_inner rest next_instr (SUB  :: sofar)
+      | String "4" rest => decode_inner rest next_instr (DIV  :: sofar)
+      | String "5" rest => decode_inner rest next_instr (SDIV :: sofar)
+      | String "6" rest => decode_inner rest next_instr (MOD  :: sofar)
+      | String "7" rest => decode_inner rest next_instr (SMOD :: sofar)
+      | String "8" rest => decode_inner rest next_instr (ADDMOD :: sofar)
+      | String "9" rest => decode_inner rest next_instr (MULMOD :: sofar)
+      | String "a" rest => decode_inner rest next_instr (EXP :: sofar)
+      | String "b" rest => decode_inner rest next_instr (SIGNEXTEND :: sofar)
+      | String "c" rest => decode_inner rest next_instr (UNKNOWN  "0c" :: sofar)
+      | String "d" rest => decode_inner rest next_instr (UNKNOWN  "0d" :: sofar)
+      | String "e" rest => decode_inner rest next_instr (UNKNOWN  "0e" :: sofar)
+      | String "f" rest => decode_inner rest next_instr (UNKNOWN  "0f" :: sofar)
+      | _ => decode_failure error_message
+      end in
   match m with
   | first_zero =>
     match str with
@@ -204,23 +226,7 @@ Module Lang.
     match str with
     | String "x" rest => decode_inner rest next_instr sofar
     (* since we are not reading x, 0 must have been first byte of the code*)
-    | String "0" rest => decode_inner rest next_instr (STOP :: sofar)
-    | String "1" rest => decode_inner rest next_instr (ADD  :: sofar)
-    | String "2" rest => decode_inner rest next_instr (MUL  :: sofar)
-    | String "3" rest => decode_inner rest next_instr (SUB  :: sofar)
-    | String "4" rest => decode_inner rest next_instr (DIV  :: sofar)
-    | String "5" rest => decode_inner rest next_instr (SDIV :: sofar)
-    | String "6" rest => decode_inner rest next_instr (MOD  :: sofar)
-    | String "7" rest => decode_inner rest next_instr (SMOD :: sofar)
-    | String "8" rest => decode_inner rest next_instr (ADDMOD :: sofar)
-    | String "9" rest => decode_inner rest next_instr (MULMOD :: sofar)
-    | String "a" rest => decode_inner rest next_instr (EXP :: sofar)
-    | String "b" rest => decode_inner rest next_instr (SIGNEXTEND :: sofar)
-    | String "c" rest => decode_inner rest next_instr (UNKNOWN  "0c" :: sofar)
-    | String "d" rest => decode_inner rest next_instr (UNKNOWN  "0d" :: sofar)
-    | String "e" rest => decode_inner rest next_instr (UNKNOWN  "0e" :: sofar)
-    | String "f" rest => decode_inner rest next_instr (UNKNOWN  "0f" :: sofar)
-    | _ => decode_failure "second character not x nor hex digit"
+    | _ => after_0 "second character not x nor hex digit"
     end
   | next_instr =>
     match str with
@@ -243,26 +249,7 @@ Module Lang.
     | EmptyString => decode_success (List.rev sofar)
     | _ => decode_failure "?"
     end
-  | read_0 =>
-    match str with
-    | String "0" rest => decode_inner rest next_instr (STOP :: sofar)
-    | String "1" rest => decode_inner rest next_instr (ADD  :: sofar)
-    | String "2" rest => decode_inner rest next_instr (MUL  :: sofar)
-    | String "3" rest => decode_inner rest next_instr (SUB  :: sofar)
-    | String "4" rest => decode_inner rest next_instr (DIV  :: sofar)
-    | String "5" rest => decode_inner rest next_instr (SDIV :: sofar)
-    | String "6" rest => decode_inner rest next_instr (MOD  :: sofar)
-    | String "7" rest => decode_inner rest next_instr (SMOD :: sofar)
-    | String "8" rest => decode_inner rest next_instr (ADDMOD :: sofar)
-    | String "9" rest => decode_inner rest next_instr (MULMOD :: sofar)
-    | String "a" rest => decode_inner rest next_instr (EXP :: sofar)
-    | String "b" rest => decode_inner rest next_instr (SIGNEXTEND :: sofar)
-    | String "c" rest => decode_inner rest next_instr (UNKNOWN  "0c" :: sofar)
-    | String "d" rest => decode_inner rest next_instr (UNKNOWN  "0d" :: sofar)
-    | String "e" rest => decode_inner rest next_instr (UNKNOWN  "0e" :: sofar)
-    | String "f" rest => decode_inner rest next_instr (UNKNOWN  "0f" :: sofar)
-    | _ => decode_failure "0?"
-    end
+  | read_0 => after_0 "0?"
   | read_1 =>
     match str with
     | String "0" rest => decode_inner rest next_instr (LT     :: sofar)
