@@ -104,6 +104,8 @@ and a_memory_to_str m block  =
     | Aempty -> "(empty)"
     | Aput32 (addr,v,orig) ->
       Printf.sprintf "(mem_write32 addr: %s val: %s in %s)" (a_val_to_str addr) (a_val_to_str v) (a_memory_to_str orig block)
+    | Aput1 (addr,v,orig) ->
+      Printf.sprintf "(mem_write_byte addr: %s val: (%s mod 256) in %s)" (a_val_to_str addr) (a_val_to_str v) (a_memory_to_str orig block)
     | Amemwrite (start_addr, len, source, mem) ->
       Printf.sprintf "%s; copy from %s [0, %s) at offset %s" (a_memory_to_str mem block) (a_memory_to_str source false) (a_val_to_str len) (a_val_to_str start_addr)
     | Adata -> "(input data)"

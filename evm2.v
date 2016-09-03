@@ -904,7 +904,11 @@ Module AbstractEVM.
   with a_memory :=
   | Aempty : a_memory
   | Aput32 : a_word -> a_word -> a_memory -> a_memory
-  (* Aput addr val orig represents the result of store. *)
+  (* Aput32 addr val orig represents the result of a one-word write. *)
+  | Aput1 : a_word -> a_word -> a_memory -> a_memory
+  (* Aput1 addr val orig represents the result of a one-byte write.
+   * Actually (val mod 256) is written.
+   *)
   | Amemwrite : a_word -> a_word -> a_memory -> a_memory -> a_memory
   (* Amemwrite start_addr len source mem represents the result of memwrite.  source [0..len - 1] is copied to mem[start_addr.. start_addr + len - 1]. *)
   | Adata : a_memory
@@ -1026,6 +1030,15 @@ Module AbstractEVM.
       | nil => simple_result None
       | _ :: nil => simple_result None
       | a :: b :: l => simple_result (Some (l, Aput32' a b mem))
+      end.
+
+  (* TODO: use Aput1' instead of Aput1.  See Aput32'. *)
+  Definition a_mstore8 : a_operation :=
+    fun s mem =>
+      match s with
+      | nil => simple_result None
+      | _ :: nil => simple_result None
+      | a :: b :: l => simple_result (Some (l, Aput1 a b mem))
       end.
 
   Definition a_mload : a_operation :=
@@ -1510,6 +1523,7 @@ Module AbstractEVM.
       | POP =>    a_operation_sem a_pop
       | MLOAD  => a_operation_sem a_mload
       | MSTORE => a_operation_sem a_mstore
+      | MSTORE8 => a_operation_sem a_mstore8
       | SLOAD => (fun pre => a_operation_sem (a_sload pre.(a_str)) pre)
       | SSTORE => (fun pre =>
                      simple_result'
