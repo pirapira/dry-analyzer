@@ -9,6 +9,9 @@
 * `make`
 * `./main.native -p 9999`
 * access [localhost:9999](http://localhost:9999)
+* paste some EVM bytecode (beginning from 0x) in the text box
+* hit "Analyze" button
+* the analyzer tells what the bytecode does, to some point
 
 ## LICENSE
 
