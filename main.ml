@@ -61,8 +61,8 @@ and simplify_mem m =
   match m with
     | Atake (st, size, orig) ->
       Atake ((simplify_val st), (simplify_val size), (simplify_mem orig))
-    | Aput (addr, v, orig) ->
-      Aput ((simplify_val addr), (simplify_val v), (simplify_mem orig))
+    | Aput32 (addr, v, orig) ->
+      Aput32 ((simplify_val addr), (simplify_val v), (simplify_mem orig))
     | _ -> m;;
 
 
@@ -102,8 +102,8 @@ and a_memory_to_str m block  =
   )^
     begin match m with
     | Aempty -> "(empty)"
-    | Aput (addr,v,orig) ->
-      Printf.sprintf "(mem_write addr: %s val: %s in %s)" (a_val_to_str addr) (a_val_to_str v) (a_memory_to_str orig block)
+    | Aput32 (addr,v,orig) ->
+      Printf.sprintf "(mem_write32 addr: %s val: %s in %s)" (a_val_to_str addr) (a_val_to_str v) (a_memory_to_str orig block)
     | Amemwrite (start_addr, len, source, mem) ->
       Printf.sprintf "%s; copy from %s [0, %s) at offset %s" (a_memory_to_str mem block) (a_memory_to_str source false) (a_val_to_str len) (a_val_to_str start_addr)
     | Adata -> "(input data)"

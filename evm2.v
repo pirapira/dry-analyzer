@@ -903,7 +903,7 @@ Module AbstractEVM.
   | Aget_storage : a_word -> a_storage -> a_word
   with a_memory :=
   | Aempty : a_memory
-  | Aput : a_word -> a_word -> a_memory -> a_memory
+  | Aput32 : a_word -> a_word -> a_memory -> a_memory
   (* Aput addr val orig represents the result of store. *)
   | Amemwrite : a_word -> a_word -> a_memory -> a_memory -> a_memory
   (* Amemwrite start_addr len source mem represents the result of memwrite.  source [0..len - 1] is copied to mem[start_addr.. start_addr + len - 1]. *)
@@ -923,19 +923,19 @@ Module AbstractEVM.
 
   Fixpoint simplify_above (addr : N) (mem : a_memory) :=
     match mem with
-    | Aput (Aimm_nat w) val orig =>
+    | Aput32 (Aimm_nat w) val orig =>
       if N.leb addr w then simplify_above addr orig
       else
-        Aput (Aimm_nat w) val (simplify_above addr orig)
+        Aput32 (Aimm_nat w) val (simplify_above addr orig)
     | _ => mem
     end.
 
   Fixpoint simplify_below (addr : N) (mem : a_memory) :=
     match mem with
-    | Aput (Aimm_nat w) val orig =>
+    | Aput32 (Aimm_nat w) val orig =>
       if N.leb (w + 32) addr then simplify_below addr orig
       else
-        Aput (Aimm_nat w) val (simplify_below addr orig)
+        Aput32 (Aimm_nat w) val (simplify_below addr orig)
     | _ => mem
     end.
 
@@ -970,25 +970,25 @@ Module AbstractEVM.
 
   Fixpoint Aget32' (addr : a_word) (mem : a_memory) : a_word :=
     match addr, mem with
-    | Aimm_nat n, Aput (Aimm_nat w) v orig =>
+    | Aimm_nat n, Aput32 (Aimm_nat w) v orig =>
       if orb (N.leb 32 (n - w)) (N.leb 32 (w - n)) then
         Aget32' addr orig
       else if (N.eqb n w) then v else Aget32 addr mem
     | _, _ => Aget32 addr mem
     end.
 
-  Fixpoint forget addr orig :=
+  Fixpoint forget32 addr orig :=
     match addr, orig with
-    | Aimm_nat w, Aput (Aimm_nat p) v pre =>
+    | Aimm_nat w, Aput32 (Aimm_nat p) v pre =>
       if (N.eqb w p) then
-        forget addr pre
+        forget32 addr pre
       else
-        Aput (Aimm_nat p) v (forget addr pre)
+        Aput32 (Aimm_nat p) v (forget32 addr pre)
     | _, _ => orig
     end.
 
-  Fixpoint Aput' (addr : a_word) (val : a_word) (orig : a_memory) : a_memory :=
-    Aput addr val (forget addr orig).
+  Fixpoint Aput32' (addr : a_word) (val : a_word) (orig : a_memory) : a_memory :=
+    Aput32 addr val (forget32 addr orig).
 
   Definition Aimm (hex : a_hex) : a_word :=
     Aimm_nat (Lang.literal_to_nat hex).
@@ -1025,7 +1025,7 @@ Module AbstractEVM.
       match s with
       | nil => simple_result None
       | _ :: nil => simple_result None
-      | a :: b :: l => simple_result (Some (l, Aput' a b mem))
+      | a :: b :: l => simple_result (Some (l, Aput32' a b mem))
       end.
 
   Definition a_mload : a_operation :=
