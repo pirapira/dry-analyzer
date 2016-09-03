@@ -175,7 +175,7 @@ Module Lang.
 
   Definition rev_string lst := rev_string_inner lst EmptyString.
 
-  (* sofar accumulates instrucitons in the reverse order *)
+  (* sofar accumulates instructions in the reverse order *)
 
   Fixpoint decode_inner (str : string) (m : decoding_mode)
            (sofar : list instr): decode_result :=
@@ -183,12 +183,44 @@ Module Lang.
   | first_zero =>
     match str with
     | String "0" rest => decode_inner rest first_x sofar
+    | String "1" rest => decode_inner rest read_1 sofar
+    | String "2" rest => decode_inner rest read_2 sofar
+    | String "3" rest => decode_inner rest read_3 sofar
+    | String "4" rest => decode_inner rest read_4 sofar
+    | String "5" rest => decode_inner rest read_5 sofar
+    | String "6" rest => decode_inner rest read_6 sofar
+    | String "7" rest => decode_inner rest read_7 sofar
+    | String "8" rest => decode_inner rest read_8 sofar
+    | String "9" rest => decode_inner rest read_9 sofar
+    | String "a" rest => decode_inner rest read_a sofar
+    | String "b" rest => decode_inner rest read_b sofar
+    | String "c" rest => decode_inner rest read_c sofar
+    | String "d" rest => decode_inner rest read_d sofar
+    | String "e" rest => decode_inner rest read_e sofar
+    | String "f" rest => decode_inner rest read_f sofar
     | _ => decode_failure "first nonzero"
     end
   | first_x =>
     match str with
     | String "x" rest => decode_inner rest next_instr sofar
-    | _ => decode_failure "second not x"
+    (* since we are not reading x, 0 must have been first byte of the code*)
+    | String "0" rest => decode_inner rest next_instr (STOP :: sofar)
+    | String "1" rest => decode_inner rest next_instr (ADD  :: sofar)
+    | String "2" rest => decode_inner rest next_instr (MUL  :: sofar)
+    | String "3" rest => decode_inner rest next_instr (SUB  :: sofar)
+    | String "4" rest => decode_inner rest next_instr (DIV  :: sofar)
+    | String "5" rest => decode_inner rest next_instr (SDIV :: sofar)
+    | String "6" rest => decode_inner rest next_instr (MOD  :: sofar)
+    | String "7" rest => decode_inner rest next_instr (SMOD :: sofar)
+    | String "8" rest => decode_inner rest next_instr (ADDMOD :: sofar)
+    | String "9" rest => decode_inner rest next_instr (MULMOD :: sofar)
+    | String "a" rest => decode_inner rest next_instr (EXP :: sofar)
+    | String "b" rest => decode_inner rest next_instr (SIGNEXTEND :: sofar)
+    | String "c" rest => decode_inner rest next_instr (UNKNOWN  "0c" :: sofar)
+    | String "d" rest => decode_inner rest next_instr (UNKNOWN  "0d" :: sofar)
+    | String "e" rest => decode_inner rest next_instr (UNKNOWN  "0e" :: sofar)
+    | String "f" rest => decode_inner rest next_instr (UNKNOWN  "0f" :: sofar)
+    | _ => decode_failure "second character not x nor hex digit"
     end
   | next_instr =>
     match str with
