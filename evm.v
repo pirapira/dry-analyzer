@@ -1200,6 +1200,7 @@ Module AbstractEVM.
       | CALLDATALOAD => a_operation_sem a_calldataload
       | CALLDATASIZE => a_operation_sem a_calldatasize
       | CALLDATACOPY => a_operation_sem a_calldatacopy
+      | BALANCE => a_operation_sem a_balance
       | ADDRESS => a_operation_sem a_address
       | TIMESTAMP => a_reader (fun _ => Atime)
       | POP =>    a_operation_sem a_pop
@@ -1332,9 +1333,17 @@ Module AbstractEVM.
       | SWAP8 => a_operation_sem a_swap8
       | SWAP9 => a_operation_sem a_swap9
       | SWAP10 => a_operation_sem a_swap10
+      | SWAP11 => comp simple_result' (not_implemented i)
+      | SWAP12 => comp simple_result' (not_implemented i)
+      | SWAP13 => comp simple_result' (not_implemented i)
+      | SWAP14 => comp simple_result' (not_implemented i)
+      | SWAP15 => comp simple_result' (not_implemented i)
+      | SWAP16 => comp simple_result' (not_implemented i)
+      | LOG0 => a_log_n 0
       | LOG1 => a_log_n 1
       | LOG2 => a_log_n 2
       | LOG3 => a_log_n 3
+      | LOG4 => a_log_n 4
       | CALL =>
         (fun pre =>
            simple_result'
@@ -1352,6 +1361,7 @@ Module AbstractEVM.
           |}
         | _ => failure pre
         end)
+      | CREATE => comp simple_result' (not_implemented i)
       | CALLCODE =>
         (fun pre =>
            simple_result'
@@ -1387,7 +1397,19 @@ Module AbstractEVM.
                    )
       | CODECOPY => a_operation_sem a_codecopy
       | SHA3 => a_operation_sem a_sha3
-      | _ => comp simple_result' (not_implemented i)
+      | ORIGIN => comp simple_result' (not_implemented i)
+      | CODESIZE => comp simple_result' (not_implemented i)
+      | GASPRICE => comp simple_result' (not_implemented i)
+      | NUMBER
+      | COINBASE
+      | BLOCKHASH
+      | DIFFICULTY
+      | GASLIMIT
+      | MSIZE
+      | PC
+      | EXTCODESIZE => comp simple_result' (not_implemented i)
+      | EXTCODECOPY => comp simple_result' (not_implemented i)
+      | UNKNOWN _ => comp simple_result' (not_implemented i)
     end.
 
   Fixpoint optmap {A B : Type} (f : A -> option B) lst :=
