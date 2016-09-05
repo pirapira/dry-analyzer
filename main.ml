@@ -93,6 +93,7 @@ let rec a_val_to_str v =
     | Anot v -> "(not "^(a_val_to_str v)^")"
     | Alt (v0, v1) -> bin " < " v0 v1
     | Aeq (v0, v1) -> bin " == " v0 v1
+    | Asignextend (v0, v1) -> "(signextend "^(a_val_to_str v1)^" from "^(a_val_to_str v0)^"bytes)"
     | Aget32 (addr, mem) -> "(get32 "^(a_val_to_str addr)^" "^(a_memory_to_str mem false)^")"
     | Aget_storage (addr, str) -> "(get_storage "^(a_val_to_str addr)^" "^(a_storage_to_str str false)^")"
     | Asha3 mem -> "(sha3 "^(a_memory_to_str mem false)^")"
@@ -345,6 +346,8 @@ let rec aval_eq a b =
   | Asmod (a0, a1), Asmod (b0, b1) -> aval_eq a0 b0 && aval_eq a1 b1
   | Amul (a0, a1), Amul (b0, b1) -> aval_eq a0 b0 && aval_eq a1 b1
   | Agt (a0, a1), Agt (b0, b1) -> aval_eq a0 b0 && aval_eq a1 b1
+  | Asignextend (a0, a1), Asignextend (b0, b1) ->
+     aval_eq a0 b0 && aval_eq a1 b1
   | Anot a_, Anot b_ -> aval_eq a_ b_
   | Asha3 am, Asha3 bm -> false
   | Alt (a0, a1), Alt (b0, b1) -> aval_eq a0 b0 && aval_eq a1 b1

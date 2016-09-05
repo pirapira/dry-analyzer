@@ -580,6 +580,7 @@ Module AbstractEVM.
   | Asdiv : a_word -> a_word -> a_word
   | Amod : a_word -> a_word -> a_word
   | Asmod : a_word -> a_word -> a_word
+  | Asignextend : a_word -> a_word -> a_word
   | Anot : a_word -> a_word
   | Asha3 : a_memory -> a_word
   | Alt  : a_word -> a_word -> a_word
@@ -841,6 +842,7 @@ Module AbstractEVM.
                               (fun a b c =>
                                  Amod (Amul a b) c).
   Definition a_smod_op := a_two_one_op Asmod.
+  Definition a_signextend_op := a_two_one_op Asignextend.
 
   Definition a_dup1 : a_operation :=
     fun s mem =>
@@ -1204,7 +1206,7 @@ Module AbstractEVM.
       | SMOD => a_operation_sem a_smod_op
       | ADDMOD => a_operation_sem a_addmod_op
       | MULMOD => a_operation_sem a_mulmod_op
-      | SIGNEXTEND => comp simple_result' (not_implemented i)
+      | SIGNEXTEND => a_operation_sem a_signextend_op
       | EXP => a_operation_sem a_exp_op
       | GT  => a_operation_sem a_gt
       | LT  => a_operation_sem a_lt
