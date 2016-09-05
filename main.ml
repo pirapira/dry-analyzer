@@ -86,6 +86,7 @@ let rec a_val_to_str v =
     | Aexp (v0, v1) -> bin " ** " v0 v1
     | Adiv (v0, v1) -> bin " / " v0 v1
     | Amod (v0, v1) -> bin " mod " v0 v1
+    | Asmod (v0, v1) -> bin " smod " v0 v1
     | Asdiv (v0, v1) -> bin " sdiv " v0 v1
     | Amul (v0, v1) -> bin " * " v0 v1
     | Agt (v0, v1) -> bin " > " v0 v1
@@ -339,8 +340,9 @@ let rec aval_eq a b =
   | Axor (a0, a1), Axor (b0, b1) -> aval_eq a0 b0 && aval_eq a1 b1
   | Aexp (a0, a1), Aexp (b0, b1) -> aval_eq a0 b0 && aval_eq a1 b1
   | Adiv (a0, a1), Adiv (b0, b1) -> aval_eq a0 b0 && aval_eq a1 b1
-  | Amod (a0, a1), Amod (b0, b1) -> aval_eq a0 b0 && aval_eq a1 b1
   | Asdiv (a0, a1), Asdiv (b0, b1) -> aval_eq a0 b0 && aval_eq a1 b1
+  | Amod (a0, a1), Amod (b0, b1) -> aval_eq a0 b0 && aval_eq a1 b1
+  | Asmod (a0, a1), Asmod (b0, b1) -> aval_eq a0 b0 && aval_eq a1 b1
   | Amul (a0, a1), Amul (b0, b1) -> aval_eq a0 b0 && aval_eq a1 b1
   | Agt (a0, a1), Agt (b0, b1) -> aval_eq a0 b0 && aval_eq a1 b1
   | Anot a_, Anot b_ -> aval_eq a_ b_
