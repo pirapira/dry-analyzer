@@ -69,6 +69,7 @@ and simplify_mem m =
 let rec a_val_to_str v =
   let bin = binary a_val_to_str in
   match v with
+    | Abyte (idx, w) -> (a_val_to_str w)^"["^(a_val_to_str idx)^"]"
     | Acaller -> "(address of caller)"
     | Atime   -> "(timestamp)"
     | Adatasize -> "(size of input)"
@@ -353,6 +354,7 @@ let rec aval_eq a b =
   | Asha3 am, Asha3 bm -> false
   | Alt (a0, a1), Alt (b0, b1) -> aval_eq a0 b0 && aval_eq a1 b1
   | Aslt (a0, a1), Aslt (b0, b1) -> aval_eq a0 b0 && aval_eq a1 b1
+  | Abyte (a0, a1), Abyte (b0, b1) -> aval_eq a0 b0 && aval_eq a1 b1
   | Aeq (a0, a1), Aeq (b0, b1) -> aval_eq a0 b0 && aval_eq a1 b1
   | Aget32 (ai, am), Aget32 (bi, bm) -> aval_eq ai bi && am_eq am bm
   | (Aget_storage (ai, a_s), Aget_storage (bi, b_s)) ->

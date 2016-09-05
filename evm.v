@@ -571,6 +571,7 @@ Module AbstractEVM.
   | Asub : a_word -> a_word -> a_word
   | Aadd : a_word -> a_word -> a_word
   | Aand : a_word -> a_word -> a_word
+  | Abyte : a_word -> a_word -> a_word
   | Aor : a_word -> a_word -> a_word
   | Axor : a_word -> a_word -> a_word
   | Aexp : a_word -> a_word -> a_word
@@ -815,6 +816,7 @@ Module AbstractEVM.
 
   Definition a_and_op : a_operation := a_two_one_op Aand.
   Definition a_or_op : a_operation := a_two_one_op Aor.
+  Definition a_byte_op : a_operation := a_two_one_op Abyte.
   Definition a_xor_op : a_operation := a_two_one_op Axor.
 
   Definition a_one_one_op (f : a_word -> a_word) : a_operation :=
@@ -1222,7 +1224,7 @@ Module AbstractEVM.
       | OR  => a_operation_sem a_or_op
       | XOR => a_operation_sem a_xor_op
       | NOT => a_operation_sem a_not
-      | BYTE => comp simple_result' (not_implemented i)
+      | BYTE => a_operation_sem a_byte_op
       | ISZERO => a_operation_sem a_iszero
       | GAS    => a_reader (fun pre => Aunknown_remaining_gas)
       | CALLER => a_reader (fun _ => Acaller)
