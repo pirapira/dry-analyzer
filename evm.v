@@ -584,6 +584,7 @@ Module AbstractEVM.
   | Anot : a_word -> a_word
   | Asha3 : a_memory -> a_word
   | Alt  : a_word -> a_word -> a_word
+  | Aslt : a_word -> a_word -> a_word
   | Aeq  : a_word -> a_word -> a_word
   | Aget32 : a_word -> a_memory -> a_word (* Aget32 addr mem *)
   | Aget_storage : a_word -> a_storage -> a_word
@@ -904,6 +905,10 @@ Module AbstractEVM.
   Definition a_gt : a_operation := a_two_one_op
     (fun a b => Agt a b).
 
+  Definition a_slt : a_operation := a_two_one_op Aslt.
+  Definition a_sgt : a_operation :=
+    a_two_one_op (fun a b => Aslt b a).
+
   Definition a_not : a_operation := a_one_one_op Anot.
 
   Definition a_sha3 : a_operation :=
@@ -1210,8 +1215,8 @@ Module AbstractEVM.
       | EXP => a_operation_sem a_exp_op
       | GT  => a_operation_sem a_gt
       | LT  => a_operation_sem a_lt
-      | SLT => comp simple_result' (not_implemented i)
-      | SGT => comp simple_result' (not_implemented i)
+      | SLT => a_operation_sem a_slt
+      | SGT => a_operation_sem a_sgt
       | EQ => a_operation_sem a_eq_op
       | AND => a_operation_sem a_and_op
       | OR  => a_operation_sem a_or_op
