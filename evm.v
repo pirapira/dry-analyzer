@@ -837,6 +837,9 @@ Module AbstractEVM.
   Definition a_addmod_op := a_three_one_op
                               (fun a b c =>
                                  Amod (Aadd' a b) c).
+  Definition a_mulmod_op := a_three_one_op
+                              (fun a b c =>
+                                 Amod (Amul a b) c).
   Definition a_smod_op := a_two_one_op Asmod.
 
   Definition a_dup1 : a_operation :=
@@ -1200,7 +1203,7 @@ Module AbstractEVM.
       | MOD => a_operation_sem a_mod_op
       | SMOD => a_operation_sem a_smod_op
       | ADDMOD => a_operation_sem a_addmod_op
-      | MULMOD => (fun pre => simple_result' (not_implemented MULMOD pre))
+      | MULMOD => a_operation_sem a_mulmod_op
       | SIGNEXTEND => comp simple_result' (not_implemented i)
       | EXP => a_operation_sem a_exp_op
       | GT  => a_operation_sem a_gt
