@@ -798,6 +798,17 @@ Module AbstractEVM.
         | a :: b :: l => Some ((f a b) :: l, mem)
       end.
 
+  Definition a_three_one_op (f : a_word -> a_word -> a_word -> a_word)
+    : a_operation :=
+    fun s mem =>
+      simple_result
+      match s with
+        | nil => None
+        | _ :: nil => None
+        | _ :: _ :: nil => None
+        | a :: b :: c :: l => Some ((f a b c) :: l, mem)
+      end.
+
   Definition a_exp_op : a_operation := a_two_one_op Aexp'.
 
   Definition a_and_op : a_operation := a_two_one_op Aand.
@@ -823,6 +834,9 @@ Module AbstractEVM.
   Definition a_add_op := a_two_one_op Aadd'.
   Definition a_sdiv_op := a_two_one_op Asdiv.
   Definition a_mod_op := a_two_one_op Amod.
+  Definition a_addmod_op := a_three_one_op
+                              (fun a b c =>
+                                 Amod (Aadd' a b) c).
   Definition a_smod_op := a_two_one_op Asmod.
 
   Definition a_dup1 : a_operation :=
@@ -1185,7 +1199,7 @@ Module AbstractEVM.
       | SDIV => a_operation_sem a_sdiv_op
       | MOD => a_operation_sem a_mod_op
       | SMOD => a_operation_sem a_smod_op
-      | ADDMOD => (fun pre => simple_result' (not_implemented ADDMOD pre))
+      | ADDMOD => a_operation_sem a_addmod_op
       | MULMOD => (fun pre => simple_result' (not_implemented MULMOD pre))
       | SIGNEXTEND => comp simple_result' (not_implemented i)
       | EXP => a_operation_sem a_exp_op
