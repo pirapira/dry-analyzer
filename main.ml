@@ -3,7 +3,7 @@ open Lwt
 open Cohttp
 open Cohttp_lwt_unix
 
-open Evm2;;
+open Evm;;
 
 Lwt_log.default :=
   Lwt_log.channel ~close_mode:`Keep ~channel:Lwt_io.stderr ()

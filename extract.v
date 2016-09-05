@@ -3,7 +3,7 @@ Require Import ExtrOcamlString.
 Require Import ExtrOcamlNatInt.
 Require Import ExtrOcamlZBigInt.
 
-Require Import evm2.
+Require Import evm.
 
 
 Extract Inductive unit => "unit" [ "()" ].
@@ -11,4 +11,4 @@ Extract Inductive unit => "unit" [ "()" ].
 Extract Inductive list => "list" [ "[]" "(::)" ].
 Extract Inductive prod => "(*)"  [ "(,)" ].
 
-Recursive Extraction Library evm2.
+Recursive Extraction Library evm.
