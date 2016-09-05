@@ -904,14 +904,14 @@ Module AbstractEVM.
   Definition a_eq_op : a_operation := a_two_one_op
     (fun a b => Aeq a b).
 
-  Definition a_gt : a_operation := a_two_one_op
+  Definition a_gt_op : a_operation := a_two_one_op
     (fun a b => Agt a b).
 
-  Definition a_slt : a_operation := a_two_one_op Aslt.
-  Definition a_sgt : a_operation :=
+  Definition a_slt_op : a_operation := a_two_one_op Aslt.
+  Definition a_sgt_op : a_operation :=
     a_two_one_op (fun a b => Aslt b a).
 
-  Definition a_not : a_operation := a_one_one_op Anot.
+  Definition a_not_op : a_operation := a_one_one_op Anot.
 
   Definition a_sha3 : a_operation :=
     fun s mem =>
@@ -922,7 +922,7 @@ Module AbstractEVM.
         | _ => None
         end.
 
-  Definition a_lt : a_operation := a_two_one_op
+  Definition a_lt_op : a_operation := a_two_one_op
     (fun a b => Alt a b).
 
   Definition a_sub_op : a_operation := a_two_one_op Asub'.
@@ -1215,15 +1215,15 @@ Module AbstractEVM.
       | MULMOD => a_operation_sem a_mulmod_op
       | SIGNEXTEND => a_operation_sem a_signextend_op
       | EXP => a_operation_sem a_exp_op
-      | GT  => a_operation_sem a_gt
-      | LT  => a_operation_sem a_lt
-      | SLT => a_operation_sem a_slt
-      | SGT => a_operation_sem a_sgt
+      | GT  => a_operation_sem a_gt_op
+      | LT  => a_operation_sem a_lt_op
+      | SLT => a_operation_sem a_slt_op
+      | SGT => a_operation_sem a_sgt_op
       | EQ => a_operation_sem a_eq_op
       | AND => a_operation_sem a_and_op
       | OR  => a_operation_sem a_or_op
       | XOR => a_operation_sem a_xor_op
-      | NOT => a_operation_sem a_not
+      | NOT => a_operation_sem a_not_op
       | BYTE => a_operation_sem a_byte_op
       | ISZERO => a_operation_sem a_iszero
       | GAS    => a_reader (fun pre => Aunknown_remaining_gas)
