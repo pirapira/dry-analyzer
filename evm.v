@@ -1019,6 +1019,51 @@ Module AbstractEVM.
         | _ => None
       end.
 
+  Definition a_swap12 : a_operation :=
+    fun s mem =>
+      simple_result
+      match s with
+        | a :: b :: c :: d :: e :: f :: g :: h :: i :: j :: k :: l :: X :: rest =>
+          Some (X :: b :: c :: d :: e :: f :: g :: h :: i :: j :: k :: l :: a :: rest, mem)
+        | _ => None
+      end.
+
+  Definition a_swap13 : a_operation :=
+    fun s mem =>
+      simple_result
+      match s with
+        | a :: b :: c :: d :: e :: f :: g :: h :: i :: j :: k :: l :: m :: X :: rest =>
+          Some (X :: b :: c :: d :: e :: f :: g :: h :: i :: j :: k :: l :: m :: a :: rest, mem)
+        | _ => None
+      end.
+
+  Definition a_swap14 : a_operation :=
+    fun s mem =>
+      simple_result
+      match s with
+        | a :: b :: c :: d :: e :: f :: g :: h :: i :: j :: k :: l :: m :: n :: X :: rest =>
+          Some (X :: b :: c :: d :: e :: f :: g :: h :: i :: j :: k :: l :: m :: n :: a :: rest, mem)
+        | _ => None
+      end.
+
+  Definition a_swap15 : a_operation :=
+    fun s mem =>
+      simple_result
+      match s with
+        | a :: b :: c :: d :: e :: f :: g :: h :: i :: j :: k :: l :: m :: n :: o :: X :: rest =>
+          Some (X :: b :: c :: d :: e :: f :: g :: h :: i :: j :: k :: l :: m :: n :: o :: a :: rest, mem)
+        | _ => None
+      end.
+
+  Definition a_swap16 : a_operation :=
+    fun s mem =>
+      simple_result
+      match s with
+        | a :: b :: c :: d :: e :: f :: g :: h :: i :: j :: k :: l :: m :: n :: o :: p :: X :: rest =>
+          Some (X :: b :: c :: d :: e :: f :: g :: h :: i :: j :: k :: l :: m :: n :: o :: p :: a :: rest, mem)
+        | _ => None
+      end.
+
   Record a_log_entry :=
     { a_log_address : a_word
     ; a_log_topics : list a_word
@@ -1375,11 +1420,11 @@ Module AbstractEVM.
       | SWAP9 => a_operation_sem a_swap9
       | SWAP10 => a_operation_sem a_swap10
       | SWAP11 => a_operation_sem a_swap11
-      | SWAP12 => comp simple_result' (not_implemented i)
-      | SWAP13 => comp simple_result' (not_implemented i)
-      | SWAP14 => comp simple_result' (not_implemented i)
-      | SWAP15 => comp simple_result' (not_implemented i)
-      | SWAP16 => comp simple_result' (not_implemented i)
+      | SWAP12 => a_operation_sem a_swap12
+      | SWAP13 => a_operation_sem a_swap13
+      | SWAP14 => a_operation_sem a_swap14
+      | SWAP15 => a_operation_sem a_swap15
+      | SWAP16 => a_operation_sem a_swap16
       | LOG0 => a_log_n 0
       | LOG1 => a_log_n 1
       | LOG2 => a_log_n 2
