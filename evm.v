@@ -1010,6 +1010,15 @@ Module AbstractEVM.
         | _ => None
       end.
 
+  Definition a_swap11 : a_operation :=
+    fun s mem =>
+      simple_result
+      match s with
+        | a :: b :: c :: d :: e :: f :: g :: h :: i :: j :: k :: l :: m =>
+          Some (l :: b :: c :: d :: e :: f :: g :: h :: i :: j :: k :: a :: m, mem)
+        | _ => None
+      end.
+
   Record a_log_entry :=
     { a_log_address : a_word
     ; a_log_topics : list a_word
@@ -1365,7 +1374,7 @@ Module AbstractEVM.
       | SWAP8 => a_operation_sem a_swap8
       | SWAP9 => a_operation_sem a_swap9
       | SWAP10 => a_operation_sem a_swap10
-      | SWAP11 => comp simple_result' (not_implemented i)
+      | SWAP11 => a_operation_sem a_swap11
       | SWAP12 => comp simple_result' (not_implemented i)
       | SWAP13 => comp simple_result' (not_implemented i)
       | SWAP14 => comp simple_result' (not_implemented i)
