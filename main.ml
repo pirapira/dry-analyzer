@@ -76,7 +76,7 @@ let rec a_val_to_str v =
     | Avalue  -> "(value of this call)"
     | Aaddress -> "(address of this contract)"
     | Abalance -> "(balance of this contract)"
-    | Aunknown_remaining_gas -> "(remaining gas (XXX make this more precise))"
+    | Aunknown explanation -> "(unknown ("^BatString.implode explanation^"))"
     | Ais_zero v' -> "(is_zero "^a_val_to_str v'^")"
     | Azero -> "0"
     | Asub (v0, v1) -> bin " - " v0 v1
@@ -333,7 +333,8 @@ let rec aval_eq a b =
   | Aaddress, Aaddress -> true
   | Abalance, Abalance -> true
   | Aimm_nat abig, Aimm_nat bbig -> Big_int.eq_big_int abig bbig
-  | Aunknown_remaining_gas, Aunknown_remaining_gas -> false
+  | Aunknown _, _ -> false
+  | _, Aunknown _ -> false
   | Ais_zero av, Ais_zero bv -> aval_eq av bv
   | Azero, Azero -> true
   | Asub (a0, a1), Asub (b0, b1) -> aval_eq a0 b0 && aval_eq a1 b1

@@ -565,7 +565,7 @@ Module AbstractEVM.
   | Aaddress : a_word
   | Abalance : a_word
   | Aimm_nat : N -> a_word
-  | Aunknown_remaining_gas : a_word
+  | Aunknown : string -> a_word
   | Ais_zero : a_word -> a_word
   | Azero : a_word
   | Asub : a_word -> a_word -> a_word
@@ -740,7 +740,7 @@ Module AbstractEVM.
 
   Definition a_gas : a_operation :=
     fun s mem =>
-      simple_result (Some (Aunknown_remaining_gas :: s, mem)).
+      simple_result (Some (Aunknown "remaining gas" :: s, mem)).
 
   Definition a_calldatasize : a_operation :=
     fun s mem =>
@@ -1280,7 +1280,7 @@ Module AbstractEVM.
       | NOT => a_operation_sem a_not_op
       | BYTE => a_operation_sem a_byte_op
       | ISZERO => a_operation_sem a_iszero
-      | GAS    => a_reader (fun pre => Aunknown_remaining_gas)
+      | GAS    => a_reader (fun _ => Aunknown "remaining_gas")
       | CALLER => a_reader (fun _ => Acaller)
       | CALLVALUE => a_reader (fun _ => Avalue)
       | CALLDATALOAD => a_operation_sem a_calldataload
