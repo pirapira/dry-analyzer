@@ -742,6 +742,10 @@ Module AbstractEVM.
     fun s mem =>
       simple_result (Some (Aunknown "remaining gas" :: s, mem)).
 
+  Definition a_msize : a_operation :=
+    fun s mem =>
+      simple_result (Some (Aunknown "memory size" :: s, mem)).
+
   Definition a_calldatasize : a_operation :=
     fun s mem =>
       simple_result (Some (Adatasize :: s, mem)).
@@ -1486,13 +1490,13 @@ Module AbstractEVM.
       | ORIGIN => comp simple_result' (not_implemented i)
       | CODESIZE => comp simple_result' (not_implemented i)
       | GASPRICE => comp simple_result' (not_implemented i)
-      | NUMBER
-      | COINBASE
-      | BLOCKHASH
-      | DIFFICULTY
-      | GASLIMIT
-      | MSIZE
-      | PC
+      | NUMBER => comp simple_result' (not_implemented i)
+      | COINBASE => comp simple_result' (not_implemented i)
+      | BLOCKHASH => comp simple_result' (not_implemented i)
+      | DIFFICULTY => comp simple_result' (not_implemented i)
+      | GASLIMIT => comp simple_result' (not_implemented i)
+      | MSIZE => a_operation_sem a_msize
+      | PC => comp simple_result' (not_implemented i)
       | EXTCODESIZE => comp simple_result' (not_implemented i)
       | EXTCODECOPY => comp simple_result' (not_implemented i)
       | UNKNOWN _ => comp simple_result' (not_implemented i)
