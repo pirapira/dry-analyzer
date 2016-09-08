@@ -135,6 +135,18 @@ Module Lang.
     | nil, S _ => nil
     end.
 
+  Open Scope N_scope.
+  Fixpoint program_bytes (prog : list instr) : N :=
+    match prog with
+    | nil => 0
+    | PUSH_N str :: tl =>
+      (N.of_nat (string_half_len str) - 1) +
+      program_bytes tl
+    | _ :: tl =>
+      1 + program_bytes tl
+    end.
+  Close Scope N_scope.
+
   Inductive decoding_mode : Set :=
   | first_zero
   | first_x
@@ -1487,7 +1499,7 @@ Module AbstractEVM.
       | CODECOPY => a_operation_sem a_codecopy
       | SHA3 => a_operation_sem a_sha3
       | ORIGIN => a_reader (fun _ => Aorigin)
-      | CODESIZE => comp simple_result' (not_implemented i)
+      | CODESIZE => a_reader (fun state => Aimm_nat (program_bytes state.(a_program)))
       | GASPRICE => comp simple_result' (not_implemented i)
       | NUMBER => comp simple_result' (not_implemented i)
       | COINBASE => comp simple_result' (not_implemented i)
