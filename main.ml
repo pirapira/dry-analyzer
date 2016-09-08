@@ -72,6 +72,7 @@ let rec a_val_to_str v =
     | Abyte (idx, w) -> (a_val_to_str w)^"["^(a_val_to_str idx)^"]"
     | Acaller -> "(address of caller)"
     | Atime   -> "(timestamp)"
+    | Agasprice -> "(gasprice)"
     | Aorigin -> "(address of original external account)"
     | Adatasize -> "(size of input)"
     | Avalue  -> "(value of this call)"
