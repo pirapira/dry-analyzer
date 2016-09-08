@@ -86,6 +86,7 @@ let rec a_val_to_str v =
     | Aunknown explanation -> "(unknown ("^BatString.implode explanation^"))"
     | Ais_zero v' -> "(is_zero "^a_val_to_str v'^")"
     | Azero -> "0"
+    | Aextcodesize a -> "(code size of address "^a_val_to_str a^")"
     | Asub (v0, v1) -> bin " - " v0 v1
     | Aadd (v0, v1) -> bin " + " v0 v1
     | Aand (v0, v1) -> bin " and " v0 v1
@@ -370,6 +371,7 @@ let rec aval_eq a b =
   | Asmod (a0, a1), Asmod (b0, b1) -> aval_eq a0 b0 && aval_eq a1 b1
   | Amul (a0, a1), Amul (b0, b1) -> aval_eq a0 b0 && aval_eq a1 b1
   | Agt (a0, a1), Agt (b0, b1) -> aval_eq a0 b0 && aval_eq a1 b1
+  | Aextcodesize a, Aextcodesize b -> aval_eq a b
   | Asignextend (a0, a1), Asignextend (b0, b1) ->
      aval_eq a0 b0 && aval_eq a1 b1
   | Anot a_, Anot b_ -> aval_eq a_ b_

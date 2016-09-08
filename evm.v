@@ -581,6 +581,7 @@ Module AbstractEVM.
   | Abalance : a_word
   | Adifficulty : a_word
   | Agaslimit : a_word
+  | Aextcodesize : a_word -> a_word
   | Aimm_nat : N -> a_word
   | Aunknown : string -> a_word (* whatever that might change during execution *)
   | Ais_zero : a_word -> a_word
@@ -933,6 +934,7 @@ Module AbstractEVM.
     a_two_one_op (fun a b => Aslt b a).
 
   Definition a_not_op : a_operation := a_one_one_op Anot.
+  Definition a_extcodesize : a_operation := a_one_one_op Aextcodesize.
 
   Definition a_sha3 : a_operation :=
     fun s mem =>
@@ -1536,7 +1538,7 @@ Module AbstractEVM.
                             (  program_bytes state.(a_program)
                              - program_bytes state.(a_prg_sfx))
                        )
-      | EXTCODESIZE => comp simple_result' (not_implemented i)
+      | EXTCODESIZE => a_operation_sem a_extcodesize
       | EXTCODECOPY => comp simple_result' (not_implemented i)
       | UNKNOWN _ => comp simple_result' (not_implemented i)
     end.
