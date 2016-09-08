@@ -72,8 +72,11 @@ let rec a_val_to_str v =
     | Abyte (idx, w) -> (a_val_to_str w)^"["^(a_val_to_str idx)^"]"
     | Acaller -> "(address of caller)"
     | Atime   -> "(timestamp)"
-    | AgasPrice -> "(gasprice)"
-    | AblockNumber -> "(block number)"
+    | Agas_price -> "(gasprice)"
+    | Ablock_number -> "(block number)"
+	| Ablockhash -> "(blockhash)"
+    | Adifficulty -> "(difficulty)"
+	| Agaslimit -> "(gaslimit)"
     | Acoinbase -> "(coinbase)"
     | Aorigin -> "(address of original external account)"
     | Adatasize -> "(size of input)"
@@ -336,6 +339,10 @@ let rec aval_eq a b =
   | Avalue, Avalue -> true
   | Aaddress, Aaddress -> true
   | Abalance, Abalance -> true
+  | Adifficulty, Adifficulty -> true
+  | Agaslimit, Agaslimit -> true
+  | Ablockhash, Ablockhash -> true
+  | Ablock_number, Ablock_number -> true
   | Aimm_nat abig, Aimm_nat bbig -> Big_int.eq_big_int abig bbig
   | Aunknown _, _ -> false
   | _, Aunknown _ -> false

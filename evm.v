@@ -570,14 +570,17 @@ Module AbstractEVM.
   Inductive a_word :=
   | Acaller : a_word
   | Aorigin : a_word
-  | AgasPrice : a_word
-  | AblockNumber : a_word
+  | Agas_price : a_word
+  | Ablock_number : a_word
   | Acoinbase : a_word
+  | Ablockhash : a_word
   | Atime : a_word
   | Adatasize : a_word
   | Avalue : a_word
   | Aaddress : a_word
   | Abalance : a_word
+  | Adifficulty : a_word
+  | Agaslimit : a_word
   | Aimm_nat : N -> a_word
   | Aunknown : string -> a_word (* whatever that might change during execution *)
   | Ais_zero : a_word -> a_word
@@ -1503,12 +1506,12 @@ Module AbstractEVM.
       | SHA3 => a_operation_sem a_sha3
       | ORIGIN => a_reader (fun _ => Aorigin)
       | CODESIZE => a_reader (fun state => Aimm_nat (program_bytes state.(a_program)))
-      | GASPRICE => a_reader (fun _ => AgasPrice)
-      | NUMBER => a_reader (fun _ => AblockNumber)
+      | GASPRICE => a_reader (fun _ => Agas_price)
+      | NUMBER => a_reader (fun _ => Ablock_number)
       | COINBASE => a_reader (fun _ => Acoinbase)
-      | BLOCKHASH => comp simple_result' (not_implemented i)
-      | DIFFICULTY => comp simple_result' (not_implemented i)
-      | GASLIMIT => comp simple_result' (not_implemented i)
+      | BLOCKHASH => a_reader (fun _ => Ablockhash)
+      | DIFFICULTY => a_reader (fun _ => Adifficulty)
+      | GASLIMIT => a_reader (fun _ => Agaslimit)
       | MSIZE => a_operation_sem a_msize
       | PC => a_reader (fun state =>
                           Aimm_nat
