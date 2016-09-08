@@ -1508,7 +1508,11 @@ Module AbstractEVM.
       | DIFFICULTY => comp simple_result' (not_implemented i)
       | GASLIMIT => comp simple_result' (not_implemented i)
       | MSIZE => a_operation_sem a_msize
-      | PC => comp simple_result' (not_implemented i)
+      | PC => a_reader (fun state =>
+                          Aimm_nat
+                            (  program_bytes state.(a_program)
+                             - program_bytes state.(a_prg_sfx))
+                       )
       | EXTCODESIZE => comp simple_result' (not_implemented i)
       | EXTCODECOPY => comp simple_result' (not_implemented i)
       | UNKNOWN _ => comp simple_result' (not_implemented i)
