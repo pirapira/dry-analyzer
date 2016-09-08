@@ -557,13 +557,14 @@ Module AbstractEVM.
   (* a_word stands for abstract world *)
   Inductive a_word :=
   | Acaller : a_word
+  | Aorigin : a_word
   | Atime : a_word
   | Adatasize : a_word
   | Avalue : a_word
   | Aaddress : a_word
   | Abalance : a_word
   | Aimm_nat : N -> a_word
-  | Aunknown : string -> a_word
+  | Aunknown : string -> a_word (* whatever that might change during execution *)
   | Ais_zero : a_word -> a_word
   | Azero : a_word
   | Asub : a_word -> a_word -> a_word
@@ -1485,7 +1486,7 @@ Module AbstractEVM.
                    )
       | CODECOPY => a_operation_sem a_codecopy
       | SHA3 => a_operation_sem a_sha3
-      | ORIGIN => comp simple_result' (not_implemented i)
+      | ORIGIN => a_reader (fun _ => Aorigin)
       | CODESIZE => comp simple_result' (not_implemented i)
       | GASPRICE => comp simple_result' (not_implemented i)
       | NUMBER => comp simple_result' (not_implemented i)
