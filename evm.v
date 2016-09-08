@@ -572,6 +572,7 @@ Module AbstractEVM.
   | Aorigin : a_word
   | AgasPrice : a_word
   | AblockNumber : a_word
+  | Acoinbase : a_word
   | Atime : a_word
   | Adatasize : a_word
   | Avalue : a_word
@@ -1504,7 +1505,7 @@ Module AbstractEVM.
       | CODESIZE => a_reader (fun state => Aimm_nat (program_bytes state.(a_program)))
       | GASPRICE => a_reader (fun _ => AgasPrice)
       | NUMBER => a_reader (fun _ => AblockNumber)
-      | COINBASE => comp simple_result' (not_implemented i)
+      | COINBASE => a_reader (fun _ => Acoinbase)
       | BLOCKHASH => comp simple_result' (not_implemented i)
       | DIFFICULTY => comp simple_result' (not_implemented i)
       | GASLIMIT => comp simple_result' (not_implemented i)

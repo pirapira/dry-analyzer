@@ -74,6 +74,7 @@ let rec a_val_to_str v =
     | Atime   -> "(timestamp)"
     | AgasPrice -> "(gasprice)"
     | AblockNumber -> "(block number)"
+    | Acoinbase -> "(coinbase)"
     | Aorigin -> "(address of original external account)"
     | Adatasize -> "(size of input)"
     | Avalue  -> "(value of this call)"
