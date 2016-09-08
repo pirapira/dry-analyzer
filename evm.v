@@ -1115,6 +1115,11 @@ Module AbstractEVM.
     ; a_call_pre        : a_state
     }.
 
+  Record a_create :=
+    { a_create_value : a_word
+    ; a_create_mem_start : a_word
+    ; a_create_mem_size  : a_word
+    }.
 
   Inductive a_single_result :=
   | continue : a_state -> a_single_result
@@ -1122,6 +1127,7 @@ Module AbstractEVM.
   | returned : a_memory (* output *) -> a_state -> a_single_result
   | stopped  : a_state -> a_single_result
   | calling  : a_call -> a_single_result
+  | creating : a_create -> a_single_result
   | end_of_program : a_state -> a_single_result (* what actually happens? *)
   | failure :  a_state -> a_single_result (* what actually happens? *)
   | not_implemented : Lang.instr -> a_state -> a_single_result
@@ -1468,7 +1474,19 @@ Module AbstractEVM.
           |}
         | _ => failure pre
         end)
-      | CREATE => comp simple_result' (not_implemented i)
+      | CREATE =>
+        (fun pre =>
+           simple_result'
+             match pre.(a_stc) with
+             | value :: mem_start :: mem_size :: rest =>
+               creating {|
+                     a_create_value := value
+                   ; a_create_mem_start := mem_start
+                   ; a_create_mem_size := mem_size
+                 |}
+             | _ => failure pre
+             end
+        )
       | CALLCODE =>
         (fun pre =>
            simple_result'

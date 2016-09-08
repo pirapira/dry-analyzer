@@ -289,6 +289,13 @@ let print_call c =
   Printf.sprintf "value: %s <br>" (a_val_to_str c.a_call_value)
 ;;
 
+let print_create c =
+  Printf.sprintf "with value: %s <br>" (a_val_to_str c.a_create_value)^
+  Printf.sprintf "with code from memory idx %s and size %s<br>"
+    (a_val_to_str c.a_create_mem_start)
+    (a_val_to_str c.a_create_mem_size)
+;;
+
 let show_single_result r =
   match r with
     | Coq_continue s -> Printf.sprintf "still <strong>running</strong> with state %s." (state_to_str s)
@@ -296,8 +303,11 @@ let show_single_result r =
     | Coq_returned (output, state) -> Printf.sprintf "<strong>return</strong>s with output %s and state %s." (a_memory_to_str (simplify_mem output) true) (state_to_str state)
     | Coq_stopped s -> Printf.sprintf "<strong>stop</strong>s with state %s." (state_to_str s)
     | Coq_calling c -> (Printf.sprintf "<strong>call</strong>s something:<br>")^
-			 (print_call c)^
+             (print_call c)^
       Printf.sprintf "<br>It's unknown what happens during/after the call."
+    | Coq_creating c -> (Printf.sprintf "tries to <strong>create</strong> something:<br>")^
+             (print_create c)^
+      Printf.sprintf "<br>It's unknown what happens during/after the create."
     | Coq_end_of_program s -> Printf.sprintf "reaches the <strong>end of the program</strong> with state %s." (state_to_str s)
     | Coq_failure s -> Printf.sprintf "causes runtime error with state %s." (state_to_str s)
     | Coq_not_implemented (istr, st) -> Printf.sprintf "hits an unimplemented instruction %s in this analyzer." (istr_to_str istr)
