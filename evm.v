@@ -570,7 +570,8 @@ Module AbstractEVM.
   Inductive a_word :=
   | Acaller : a_word
   | Aorigin : a_word
-  | Agasprice : a_word
+  | AgasPrice : a_word
+  | AblockNumber : a_word
   | Atime : a_word
   | Adatasize : a_word
   | Avalue : a_word
@@ -1501,8 +1502,8 @@ Module AbstractEVM.
       | SHA3 => a_operation_sem a_sha3
       | ORIGIN => a_reader (fun _ => Aorigin)
       | CODESIZE => a_reader (fun state => Aimm_nat (program_bytes state.(a_program)))
-      | GASPRICE => a_reader (fun _ => Agasprice)
-      | NUMBER => comp simple_result' (not_implemented i)
+      | GASPRICE => a_reader (fun _ => AgasPrice)
+      | NUMBER => a_reader (fun _ => AblockNumber)
       | COINBASE => comp simple_result' (not_implemented i)
       | BLOCKHASH => comp simple_result' (not_implemented i)
       | DIFFICULTY => comp simple_result' (not_implemented i)
