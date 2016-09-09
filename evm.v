@@ -10,6 +10,7 @@ Module Lang.
 
   (* TODO: sort by opcode *)
   Inductive instr := (** partial.  adding those necessary. *)
+  (* 0s *)
   | STOP
   | ADD
   | MUL
@@ -20,20 +21,23 @@ Module Lang.
   | SMOD
   | ADDMOD
   | MULMOD
-  | SIGNEXTEND
   | EXP
+  | SIGNEXTEND
+  (* 10s *)
+  | LT
   | GT
+  | SLT
   | SGT
   | EQ
-  | LT
-  | SLT
+  | ISZERO
   | AND
   | OR
   | XOR
   | NOT
   | BYTE
-  | ISZERO
+  (* 20s *)
   | SHA3
+  (* 30s *)
   | ADDRESS
   | BALANCE
   | ORIGIN
@@ -47,12 +51,14 @@ Module Lang.
   | GASPRICE
   | EXTCODESIZE
   | EXTCODECOPY
+  (* 40s *)
   | BLOCKHASH
   | COINBASE
   | TIMESTAMP
   | NUMBER
   | DIFFICULTY
   | GASLIMIT
+  (* 50s *)
   | POP
   | MLOAD
   | MSTORE
@@ -65,7 +71,9 @@ Module Lang.
   | MSIZE
   | GAS
   | JUMPDEST
-  | PUSH_N : string -> instr
+  (* 60s, 70s *)
+  | PUSH_N : (* pushed value in hex with 0x *) string -> instr
+  (* 80s *)
   | DUP1
   | DUP2
   | DUP3
@@ -82,6 +90,7 @@ Module Lang.
   | DUP14
   | DUP15
   | DUP16
+  (* 90s *)
   | SWAP1
   | SWAP2
   | SWAP3
@@ -98,15 +107,18 @@ Module Lang.
   | SWAP14
   | SWAP15
   | SWAP16
+  (* a0s *)
   | LOG0
   | LOG1
   | LOG2
   | LOG3
   | LOG4
+  (* f0s *)
   | CREATE
   | CALL
   | CALLCODE
   | RETURN
+  (* | DELEGATECALL *)
   | SUICIDE
   | UNKNOWN : string -> instr
   .
@@ -1123,6 +1135,13 @@ Module AbstractEVM.
     ; a_create_mem_size  : a_word
     }.
 
+  Record a_extcode_copy :=
+    { a_extcode_copy_addr : a_word
+    ; a_extcode_copy_memory_start : a_word
+    ; a_extcode_copy_code_start : a_word
+    ; a_extcode_copy_len : a_word
+    }.
+
   Inductive a_single_result :=
   | continue : a_state -> a_single_result
   | suicide  : a_word (* who gets the balance *) -> a_single_result
@@ -1130,6 +1149,7 @@ Module AbstractEVM.
   | stopped  : a_state -> a_single_result
   | calling  : a_call -> a_single_result
   | creating : a_create -> a_single_result
+  | extcode_copying : a_extcode_copy -> a_single_result
   | end_of_program : a_state -> a_single_result (* what actually happens? *)
   | failure :  a_state -> a_single_result (* what actually happens? *)
   | not_implemented : Lang.instr -> a_state -> a_single_result
@@ -1539,7 +1559,20 @@ Module AbstractEVM.
                              - program_bytes state.(a_prg_sfx))
                        )
       | EXTCODESIZE => a_operation_sem a_extcodesize
-      | EXTCODECOPY => comp simple_result' (not_implemented i)
+      | EXTCODECOPY =>
+        (fun pre =>
+           simple_result'
+             match pre.(a_stc) with
+             | addr :: memory_start :: code_start :: len :: rest =>
+               extcode_copying
+               {|
+                 a_extcode_copy_addr := addr ;
+                 a_extcode_copy_memory_start := memory_start ;
+                 a_extcode_copy_code_start := code_start ;
+                 a_extcode_copy_len := len |}
+             | _ => failure pre
+             end
+        )
       | UNKNOWN _ => comp simple_result' (not_implemented i)
     end.
 

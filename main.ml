@@ -297,6 +297,13 @@ let print_create c =
     (a_val_to_str c.a_create_mem_size)
 ;;
 
+let print_extcode_copy e =
+  Printf.sprintf "with addr: %s <br>" (a_val_to_str e.a_extcode_copy_addr)^
+  Printf.sprintf "with memory start: %s <br>" (a_val_to_str e.a_extcode_copy_memory_start)^
+  Printf.sprintf "with code start: %s <br>" (a_val_to_str e.a_extcode_copy_code_start)^
+  Printf.sprintf "with length: %s <br>" (a_val_to_str e.a_extcode_copy_len)
+;;
+
 let show_single_result r =
   match r with
     | Coq_continue s -> Printf.sprintf "still <strong>running</strong> with state %s." (state_to_str s)
@@ -309,6 +316,10 @@ let show_single_result r =
     | Coq_creating c -> (Printf.sprintf "tries to <strong>create</strong> something:<br>")^
              (print_create c)^
       Printf.sprintf "<br>It's unknown what happens during/after the create."
+    | Coq_extcode_copying e ->
+        (Printf.sprintf "tries to <strong>copy code of</strong> an account:<br>")^
+             (print_extcode_copy e)^
+      Printf.sprintf "<br>It's unknown what happens during/after the code copying."
     | Coq_end_of_program s -> Printf.sprintf "reaches the <strong>end of the program</strong> with state %s." (state_to_str s)
     | Coq_failure s -> Printf.sprintf "causes runtime error with state %s." (state_to_str s)
     | Coq_not_implemented (istr, st) -> Printf.sprintf "hits an unimplemented instruction %s in this analyzer." (istr_to_str istr)
