@@ -1300,6 +1300,12 @@ Module AbstractEVM.
 
   Definition simple_result' x := a_result_from_list (simple_result x).
 
+  Definition check_jump_dst lst prestate c :=
+    match lst with
+    | JUMPDEST :: _ => c
+    | _ => failure prestate
+    end.
+
   Definition a_instr_sem (i : instr) : a_state -> a_result :=
     match i with
       | STOP => (fun pre => ((nil, stopped pre) :: nil, 1))
@@ -1370,15 +1376,17 @@ Module AbstractEVM.
                      then
                        back_jmp pre
                      else *)
-                     continue {|
+                     let sfx := drop_bytes pre.(a_program) (N.to_nat jmp) in
+                     check_jump_dst sfx pre
+                     (continue {|
                        a_stc := tl;
                        a_mem := pre.(a_mem);
                        a_str := pre.(a_str);
                        a_log := pre.(a_log);
                        a_program := pre.(a_program);
                        a_program_code := pre.(a_program_code);
-                       a_prg_sfx := drop_bytes pre.(a_program) (N.to_nat jmp)
-                     |}
+                       a_prg_sfx := sfx
+                     |})
                    | _ => not_implemented i pre
                    end
                 )
@@ -1410,15 +1418,17 @@ Module AbstractEVM.
                          then
                            back_jmp pre
                          else *)
-                        continue {|
+                         let sfx := drop_bytes pre.(a_program) (N.to_nat dst) in
+                         check_jump_dst sfx pre
+                        (continue {|
                             a_stc := tl_stc;
                             a_mem := pre.(a_mem);
                             a_str := pre.(a_str);
                             a_log := pre.(a_log);
                             a_program := pre.(a_program);
                             a_program_code := pre.(a_program_code);
-                            a_prg_sfx := drop_bytes pre.(a_program) (N.to_nat dst)
-                          |})
+                            a_prg_sfx := sfx
+                          |}))
                         :: nil)
                     | _ => simple_result' (not_implemented i pre)
                     end)
