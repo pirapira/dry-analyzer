@@ -523,8 +523,6 @@ Module Lang.
   Definition decode (code : string) : decode_result :=
     decode_inner code first_zero nil.
 
-
-
   Open Scope string_scope.
 
 
@@ -590,7 +588,7 @@ Module AbstractEVM.
   | Adatasize : a_word
   | Avalue : a_word
   | Aaddress : a_word
-  | Abalance : a_word
+  | Abalance : a_word -> a_word
   | Adifficulty : a_word
   | Agaslimit : a_word
   | Aextcodesize : a_word -> a_word
@@ -786,9 +784,15 @@ Module AbstractEVM.
   Definition a_address : a_operation :=
     fun s mem =>
       simple_result (Some (Aaddress :: s, mem)).
-  Definition a_balance : a_operation :=
+  Definition a_one_one_op (f : a_word -> a_word) : a_operation :=
     fun s mem =>
-      simple_result (Some (Abalance :: s, mem)).
+      simple_result
+      match s with
+        | nil => None
+        | a :: l => Some (f a :: l, mem)
+      end.
+
+  Definition a_balance : a_operation := a_one_one_op Abalance.
 
   Definition a_calldatacopy : a_operation :=
     fun s mem =>
@@ -852,14 +856,6 @@ Module AbstractEVM.
   Definition a_or_op : a_operation := a_two_one_op Aor.
   Definition a_byte_op : a_operation := a_two_one_op Abyte.
   Definition a_xor_op : a_operation := a_two_one_op Axor.
-
-  Definition a_one_one_op (f : a_word -> a_word) : a_operation :=
-    fun s mem =>
-      simple_result
-      match s with
-        | nil => None
-        | a :: l => Some (f a :: l, mem)
-      end.
 
   Definition a_sload storage : a_operation :=
     a_one_one_op (fun addr => Aget_storage addr storage).

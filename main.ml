@@ -82,7 +82,7 @@ let rec a_val_to_str v =
     | Adatasize -> "(size of input)"
     | Avalue  -> "(value of this call)"
     | Aaddress -> "(address of this contract)"
-    | Abalance -> "(balance of this contract)"
+    | Abalance addr -> "(balance of "^a_val_to_str addr^")"
     | Aunknown explanation -> "(unknown ("^BatString.implode explanation^"))"
     | Ais_zero v' -> "(is_zero "^a_val_to_str v'^")"
     | Azero -> "0"
@@ -360,7 +360,7 @@ let rec aval_eq a b =
   | Adatasize, Adatasize -> true
   | Avalue, Avalue -> true
   | Aaddress, Aaddress -> true
-  | Abalance, Abalance -> true
+  | Abalance v, Abalance w -> aval_eq v w
   | Adifficulty, Adifficulty -> true
   | Agaslimit, Agaslimit -> true
   | Ablockhash, Ablockhash -> true
