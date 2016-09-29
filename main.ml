@@ -481,8 +481,8 @@ Contract:<br>
 </ul>
 <hr>
 <address>
-Dr. Y is a hobby-time entity, whose identity will be revealed when the hobby is no longer a hobby.
-<br>Contact: dr-y@hushmail.com</address>
+Yoichi Hirai
+<br>Contact: i@yoichihirai.com</address>
 </body>
 </html>")
 		   ))
