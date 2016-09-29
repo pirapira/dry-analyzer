@@ -118,7 +118,7 @@ Module Lang.
   | CALL
   | CALLCODE
   | RETURN
-  (* | DELEGATECALL *)
+  | DELEGATECALL
   | SUICIDE
   | UNKNOWN : string -> instr
   .
@@ -1115,6 +1115,7 @@ Module AbstractEVM.
 
   Record a_call :=
     { a_call_gaslimit   : a_word
+    ; a_caller : a_word
     ; a_call_code       : a_word
     ; a_call_recipient  : a_word
     ; a_call_value      : a_word
@@ -1491,6 +1492,7 @@ Module AbstractEVM.
         match pre.(a_stc) with
         | e0 :: e1 :: e2 :: e3 :: e4 :: e5 :: e6 :: rest =>
          calling {| a_call_gaslimit := e0
+           ; a_caller := Aaddress
            ; a_call_code   := e1
            ; a_call_recipient := e1
            ; a_call_value    := e2
@@ -1515,12 +1517,33 @@ Module AbstractEVM.
              | _ => failure pre
              end
         )
+      | DELEGATECALL =>
+        (fun pre =>
+           simple_result'
+        match pre.(a_stc) with
+        | e0 :: e1 :: e3 :: e4 :: e5 :: e6 :: rest =>
+          (* TODO: the yellow paper says DELEGATECALL takes 6 arguments instead of 7! *)
+          calling {|
+             a_call_gaslimit := e0
+           ; a_call_code   := e1
+           ; a_caller := Acaller
+           ; a_call_recipient := Aaddress
+           ; a_call_value    := Avalue
+           ; a_call_data_begin :=  e3
+           ; a_call_data_size  :=  e4
+           ; a_call_output_dst :=  e5
+           ; a_call_output_max :=  e6
+           ; a_call_pre := pre (* TODO: maybe remove the seven stack elements already *)
+          |}
+        | _ => failure pre
+        end)
       | CALLCODE =>
         (fun pre =>
            simple_result'
         match pre.(a_stc) with
         | e0 :: e1 :: e2 :: e3 :: e4 :: e5 :: e6 :: rest =>
          calling {| a_call_gaslimit := e0
+           ; a_caller := Aaddress
            ; a_call_code   := e1
            ; a_call_recipient := Aaddress
            ; a_call_value    := e2

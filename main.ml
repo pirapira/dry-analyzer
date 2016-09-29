@@ -242,6 +242,7 @@ let istr_to_str istr =
     | LOG4 -> "LOG4"
     | CREATE -> "CREATE"
     | CALL -> "CALL"
+    | DELEGATECALL -> "DELEGATECALL"
     | CALLCODE -> "CALLCODE"
     | RETURN -> "RETURN"
     | SUICIDE -> "SUICIDE"
@@ -287,7 +288,8 @@ let state_to_str s =
 let print_call c =
   Printf.sprintf "code at address: %s <br>" (a_val_to_str c.a_call_code)^
   Printf.sprintf "recipient address: %s <br>" (a_val_to_str c.a_call_recipient)^
-  Printf.sprintf "value: %s <br>" (a_val_to_str c.a_call_value)
+  Printf.sprintf "value: %s <br>" (a_val_to_str c.a_call_value)^
+  Printf.sprintf "caller: %s <br>" (a_val_to_str c.a_caller)
 ;;
 
 let print_create c =
