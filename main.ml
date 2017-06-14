@@ -504,4 +504,5 @@ let () =
   Getopt.parse_cmdline specs print_endline;
   let server =
     Server.create ~mode:(`TCP (`Port !port)) (Server.make ~callback ()) in
+  let () = Printf.printf "Starting a web server at port %d\n%!" !port in
   ignore (Lwt_main.run server)
