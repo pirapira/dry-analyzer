@@ -1,7 +1,5 @@
 # Dr. Y's Ethereum Contract Analyzer
 
-[An online version](http://dr-y.no-ip.net)
-
 ## How to use
 
 * Install OCaml (4.02.3 works) and [opam](https://opam.ocaml.org/)
