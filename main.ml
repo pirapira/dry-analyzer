@@ -476,7 +476,7 @@ Contract:<br>
 <address>
 Yoichi Hirai
 <br>Contact: i@yoichihirai.com</address>
-<address><a href=\"https://github.com/pirapira/dry-analyzer\">source code</a></address>
+<address><a href=\"https://github.com/pirapira/dry-analyzer\">GitHub: view source and file issues</a></address>
 </body>
 </html>")
 		   ))
