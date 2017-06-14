@@ -329,16 +329,16 @@ Module Lang.
     | String "3" rest => decode_inner rest next_instr (NUMBER :: sofar)
     | String "4" rest => decode_inner rest next_instr (DIFFICULTY :: sofar)
     | String "5" rest => decode_inner rest next_instr (GASLIMIT :: sofar)
-    | String "6" rest => decode_failure "46"
-    | String "7" rest => decode_failure "47"
-    | String "8" rest => decode_failure "48"
-    | String "9" rest => decode_failure "49"
-    | String "a" rest => decode_failure "4a"
-    | String "b" rest => decode_failure "4b"
+    | String "6" rest => decode_inner rest next_instr (UNKNOWN  "46" :: sofar)
+    | String "7" rest => decode_inner rest next_instr (UNKNOWN  "47" :: sofar)
+    | String "8" rest => decode_inner rest next_instr (UNKNOWN  "48" :: sofar)
+    | String "9" rest => decode_inner rest next_instr (UNKNOWN  "49" :: sofar)
+    | String "a" rest => decode_inner rest next_instr (UNKNOWN  "4a" :: sofar)
+    | String "b" rest => decode_inner rest next_instr (UNKNOWN  "4b" :: sofar)
     | String "c" rest => decode_inner rest next_instr (UNKNOWN "4c" :: sofar)
-    | String "d" rest => decode_failure "4d"
-    | String "e" rest => decode_failure "4e"
-    | String "f" rest => decode_failure "4f"
+    | String "d" rest => decode_inner rest next_instr (UNKNOWN  "4d" :: sofar)
+    | String "e" rest => decode_inner rest next_instr (UNKNOWN  "4e" :: sofar)
+    | String "f" rest => decode_inner rest next_instr (UNKNOWN  "4f" :: sofar)
     | _ => decode_failure "4?"
     end
   | read_5 =>
@@ -355,10 +355,10 @@ Module Lang.
     | String "9" rest => decode_inner rest next_instr (MSIZE :: sofar)
     | String "a" rest => decode_inner rest next_instr (GAS :: sofar)
     | String "b" rest => decode_inner rest next_instr (JUMPDEST :: sofar)
-    | String "c" rest => decode_failure "5c"
-    | String "d" rest => decode_failure "5d"
-    | String "e" rest => decode_failure "5e"
-    | String "f" rest => decode_failure "5f"
+    | String "c" rest => decode_inner rest next_instr (UNKNOWN  "5c" :: sofar)
+    | String "d" rest => decode_inner rest next_instr (UNKNOWN  "5d" :: sofar)
+    | String "e" rest => decode_inner rest next_instr (UNKNOWN  "5e" :: sofar)
+    | String "f" rest => decode_inner rest next_instr (UNKNOWN  "5f" :: sofar)
     | _ => decode_failure "5?"
     end
   | read_6 =>
@@ -448,40 +448,40 @@ Module Lang.
     | String "2" rest => decode_inner rest next_instr (LOG2 :: sofar)
     | String "3" rest => decode_inner rest next_instr (LOG3 :: sofar)
     | String "4" rest => decode_inner rest next_instr (LOG4 :: sofar)
-    | String "5" rest => decode_failure "a5"
-    | String "6" rest => decode_failure "a6"
-    | String "7" rest => decode_failure "a7"
-    | String "8" rest => decode_failure "a8"
+    | String "5" rest => decode_inner rest next_instr (UNKNOWN  "a5" :: sofar)
+    | String "6" rest => decode_inner rest next_instr (UNKNOWN  "a6" :: sofar)
+    | String "7" rest => decode_inner rest next_instr (UNKNOWN  "a7" :: sofar)
+    | String "8" rest => decode_inner rest next_instr (UNKNOWN  "a8" :: sofar)
     | String "9" rest => decode_inner rest next_instr (UNKNOWN "a9" :: sofar)
-    | String "a" rest => decode_failure "aa"
-    | String "b" rest => decode_failure "ab"
+    | String "a" rest => decode_inner rest next_instr (UNKNOWN  "aa" :: sofar)
+    | String "b" rest => decode_inner rest next_instr (UNKNOWN  "ab" :: sofar)
     | String "c" rest => decode_inner rest next_instr (UNKNOWN "ac" :: sofar)
-    | String "d" rest => decode_failure "ad"
-    | String "e" rest => decode_failure "ae"
-    | String "f" rest => decode_failure "af"
+    | String "d" rest => decode_inner rest next_instr (UNKNOWN  "ad" :: sofar)
+    | String "e" rest => decode_inner rest next_instr (UNKNOWN  "ae" :: sofar)
+    | String "f" rest => decode_inner rest next_instr (UNKNOWN  "af" :: sofar)
     | _ => decode_failure "a?"
     end
   | read_b =>
     match str with
       | String _ rest => decode_inner rest next_instr (UNKNOWN "b?" :: sofar)
-      | EmptyString => decode_failure "b$"
+      | EmptyString => decode_failure "b?"
     end
   | read_c =>
     match str with
-      | String _ rest => decode_inner rest next_instr (UNKNOWN "c?" :: sofar) 
-      | EmptyString => decode_failure "c$"
+      | String _ rest => decode_inner rest next_instr (UNKNOWN "c?" :: sofar)
+      | EmptyString => decode_failure "c?"
     end
   | read_d =>
     match str with
-    | String _ rest => decode_inner rest next_instr (UNKNOWN "e?" :: sofar)
-    | EmptyString => decode_failure "d$"
+    | String _ rest => decode_inner rest next_instr (UNKNOWN "d?" :: sofar)
+    | EmptyString => decode_failure "d?"
     end
   | read_e =>
     match str with
     | String "0" rest => decode_inner rest next_instr (UNKNOWN "e0" :: sofar)
     | String "9" rest => decode_inner rest next_instr (UNKNOWN "e9" :: sofar)
     | String _ rest   => decode_inner rest next_instr (UNKNOWN "e?" :: sofar)
-    | EmptyString => decode_failure "e$"
+    | EmptyString => decode_failure "e?"
     end
   | read_f =>
     match str with
