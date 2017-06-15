@@ -470,7 +470,7 @@ Contract:<br>
 <li>Consider the stack depsth limitation.</li>
 <li>Consider uint256 overflow/underflow (currently the concrete values are taken as natural numbers).</li>
 <li>Test the symbolic execution against other implementations.</li>
-<li>Translate the Yellow Ppaer faithfully to a theorem prover and then prove that the symbolic execution matches the Yellow Paper.</li>
+<li>Translate the Yellow Paper faithfully to a theorem prover and then prove that the symbolic execution matches the Yellow Paper.</li>
 </ul>
 <hr>
 <address>
