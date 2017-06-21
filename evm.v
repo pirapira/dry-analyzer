@@ -1212,15 +1212,18 @@ Module AbstractEVM.
                match cond_opt with
                | (cond, None) => (cond, failure pre)
                | (cond, Some (s,m)) =>
-                 (cond,
-                  continue {| a_stc := s ;
-                              a_mem := m ;
-                              a_str := pre.(a_str) ;
-                              a_log := pre.(a_log) ;
-                              a_program := pre.(a_program);
-                              a_prg_sfx := tl;
-                              a_program_code := pre.(a_program_code)
-                           |})
+                 if (Nat.ltb 1024 (length s))%nat then
+                   (cond, failure pre)
+                 else
+                   (cond,
+                    continue {| a_stc := s ;
+                                a_mem := m ;
+                                a_str := pre.(a_str) ;
+                                a_log := pre.(a_log) ;
+                                a_program := pre.(a_program);
+                                a_prg_sfx := tl;
+                                a_program_code := pre.(a_program_code)
+                             |})
                end)
             (op pre.(a_stc) pre.(a_mem)))
     end.
