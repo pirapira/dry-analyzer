@@ -287,11 +287,11 @@ Module Lang.
     | String "8" rest => decode_inner rest next_instr (XOR    :: sofar)
     | String "9" rest => decode_inner rest next_instr (NOT    :: sofar)
     | String "a" rest => decode_inner rest next_instr (BYTE   :: sofar)
-    | String "b" rest => decode_failure "1b"
-    | String "c" rest => decode_failure "1c"
-    | String "d" rest => decode_failure "1d"
-    | String "e" rest => decode_failure "1e"
-    | String "f" rest => decode_failure "1f"
+    | String "b" rest => decode_inner rest next_instr (UNKNOWN  "1f" :: sofar)
+    | String "c" rest => decode_inner rest next_instr (UNKNOWN  "1f" :: sofar)
+    | String "d" rest => decode_inner rest next_instr (UNKNOWN  "1f" :: sofar)
+    | String "e" rest => decode_inner rest next_instr (UNKNOWN  "1f" :: sofar)
+    | String "f" rest => decode_inner rest next_instr (UNKNOWN  "1f" :: sofar)
     | _ => decode_failure "1?"
     end
   | read_2 =>
