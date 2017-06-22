@@ -662,11 +662,15 @@ Module AbstractEVM.
     end.
 
   Definition Atake' start size mem :=
-    match start, size with
-    | Aimm_nat st, Aimm_nat si =>
+    match start, size, mem with
+    | Aimm_nat 0, Aimm_nat 64, (Aput32 (Aimm_nat 32) y (Aput32 (Aimm_nat 0) x _)) =>
+      Aconcat x y
+    | Aimm_nat 0, Aimm_nat 64, (Aput32 (Aimm_nat 0) x (Aput32 (Aimm_nat 32) y _)) =>
+      Aconcat x y
+    | Aimm_nat st, Aimm_nat si, _ =>
       Atake start size
             (simplify_below st (simplify_above (st + si) mem))
-    | _, _ =>
+    | _, _, _ =>
       Atake start size mem
     end.
 
