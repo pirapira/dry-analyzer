@@ -636,6 +636,8 @@ Module AbstractEVM.
   | Acodecopy : a_word -> a_word -> a_word -> a_memory -> a_memory
   (* Acodecopy base_in_memory base_in_code len orig *)
   | Amem_imm : string -> a_memory
+  | Aconcat : a_word -> a_word -> a_memory
+  (* Aconcat w0 w1 appears a lot in Solidity compilation. *)
   with a_storage :=
   | Ainitial_storage : a_storage
   | Aput_storage : a_word -> a_word -> a_storage -> a_storage
@@ -660,11 +662,15 @@ Module AbstractEVM.
     end.
 
   Definition Atake' start size mem :=
-    match start, size with
-    | Aimm_nat st, Aimm_nat si =>
+    match start, size, mem with
+    | Aimm_nat 0, Aimm_nat 64, (Aput32 (Aimm_nat 32) y (Aput32 (Aimm_nat 0) x _)) =>
+      Aconcat x y
+    | Aimm_nat 0, Aimm_nat 64, (Aput32 (Aimm_nat 0) x (Aput32 (Aimm_nat 32) y _)) =>
+      Aconcat x y
+    | Aimm_nat st, Aimm_nat si, _ =>
       Atake start size
             (simplify_below st (simplify_above (st + si) mem))
-    | _, _ =>
+    | _, _, _ =>
       Atake start size mem
     end.
 
