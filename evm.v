@@ -636,6 +636,8 @@ Module AbstractEVM.
   | Acodecopy : a_word -> a_word -> a_word -> a_memory -> a_memory
   (* Acodecopy base_in_memory base_in_code len orig *)
   | Amem_imm : string -> a_memory
+  | Aconcat : a_word -> a_word -> a_memory
+  (* Aconcat w0 w1 appears a lot in Solidity compilation. *)
   with a_storage :=
   | Ainitial_storage : a_storage
   | Aput_storage : a_word -> a_word -> a_storage -> a_storage

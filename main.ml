@@ -129,6 +129,8 @@ and a_memory_to_str m block  =
       (a_val_to_str size) (a_val_to_str start) (a_memory_to_str orig block)
     | Amem_imm _ -> "a_mem_to_str imm not implemented"
     | Acodecopy _ -> "a_mem_to_str: codecopy not implemented"
+    | Aconcat (w0, w1) ->
+       Printf.sprintf "(concat %s %s)" (a_val_to_str w0) (a_val_to_str w1)
     end^(if block then "</div>" else "</span>")
 and a_storage_to_str m block =
   (if block then
