@@ -818,13 +818,22 @@ Module AbstractEVM.
         | _ => None
         end.
 
+  Definition Ais_zero' (orig : a_word) : a_word :=
+    match orig with
+    | Atime => Aimm_nat 0
+    | Azero => Aimm_nat 1
+    | Aimm_nat x =>
+      Aimm_nat (if Neqb 0 x then 1 else 0)
+    | _ => Ais_zero orig
+    end.
+
   Definition a_iszero : a_operation :=
     fun s mem =>
       simple_result
         match s with
         | nil => None
         | h :: tl =>
-          Some (Ais_zero h :: tl, mem)
+          Some (Ais_zero' h :: tl, mem)
         end.
 
   Definition a_two_two_op (f : a_word -> a_word -> (a_word * a_word)) : a_operation :=
