@@ -1641,6 +1641,15 @@ Module AbstractEVM.
                ) conds1 then
       false else true.
 
+  Definition satisfiable (a_word_eq : a_word -> a_word -> bool) (cond : a_prop) : bool :=
+    match cond with
+    | is_zero (Aimm_nat x) => Neqb x 0
+    | _ => true
+    end.
+
+  Definition unsatisfiable a_word_eq conds : bool :=
+    if forallb (fun c => satisfiable a_word_eq c) conds
+    then false else true.
 
   Definition append_cond (a_word_eq : a_word -> a_word -> bool) (cond : list a_prop) (r : a_result) : a_result :=
     match r with (lst, len) =>
@@ -1682,7 +1691,8 @@ Module AbstractEVM.
         flat_map' number_checker
           (fun s_result =>
              match s_result with
-               | (cond, x) =>
+             | (cond, x) =>
+                 if unsatisfiable a_word_eq cond then (nil, 0) else
                  if conflict a_word_eq cond conds then (nil, 0) else
                    append_cond a_word_eq cond (a_exec (cond ++ conds) number_checker a_word_eq n' x)
              end)
