@@ -406,6 +406,24 @@ and am_eq a b =
   | Adata, Adata -> true
   | _, _ -> false
 
+let rec parse_storage_inner (strs : string list) (current : Evm.AbstractEVM.a_storage) : Evm.AbstractEVM.a_storage =
+  match strs with
+  | [] -> current
+  | [a] ->
+     Printf.eprintf "single %s\n%!" a;
+     failwith "odd number of strings"
+  | k :: v :: rest ->
+     Printf.eprintf "pair %s %s\n%!" k v;
+     let k = Big_int.big_int_of_string k in
+     let v = Big_int.big_int_of_string v in
+     parse_storage_inner rest Evm.AbstractEVM.(Aput_storage (Aimm_nat k, Aimm_nat v, current))
+
+let parse_storage (input : string option) : Evm.AbstractEVM.a_storage =
+  match input with
+  | None -> Evm.AbstractEVM.Ainitial_storage
+  | Some str -> parse_storage_inner (Str.split (Str.regexp "[ \t\n\012\r]+") str) Evm.AbstractEVM.Ainitial_storage
+  ;;
+
 
 let body_creator uri meth headers =
   (fun body ->
@@ -424,7 +442,9 @@ Maximal number of steps to analyze:
 <input type=\"text\" value=\"%s\" name=\"nsteps\"><br>
 Contract:<br>
 <textarea rows='8' cols='48' name='contract'>%s</textarea><br>
-<input type=\"submit\" value=\"Analyze\" style=\"font-size: 200%%; background-color: green; color: white; border: none;\">
+<input type=\"submit\" value=\"Analyze\" style=\"font-size: 200%%; background-color: green; color: white; border: none;\"> <br>
+Storage (optional):<br>
+<textarea rows='2' cols='48' name='storage'>%s</textarea><br>
 </form>"
 (match Uri.get_query_param uri "nsteps" with
  | None -> "400"
@@ -436,6 +456,9 @@ Contract:<br>
     let filtered = filter_hex str in
     filtered
 )
+(match Uri.get_query_param uri "storage" with
+ | None -> ""
+ | Some str -> str)
 )
     ^
 (match Uri.get_query_param uri "contract", Uri.get_query_param uri "nsteps" with
@@ -446,8 +469,9 @@ Contract:<br>
       let filtered = filter_hex code in
       let steps = (if filtered = "0x0x0x" then 400 else int_of_string steps) in
       let code_coq : char list = BatString.explode filtered in
+      let storage_coq : Evm.AbstractEVM.a_storage = parse_storage (Uri.get_query_param uri "storage") in
       let (result, result_len)  =
-	a_run aval_eq number_checker steps code_coq
+	a_run aval_eq number_checker steps code_coq storage_coq
     in
     (Printf.sprintf
       "<h2>Code</h2>

@@ -1703,13 +1703,13 @@ Module AbstractEVM.
     end
     .
 
-  Definition a_ex (r : decode_result) (code : string) : a_single_result :=
+  Definition a_ex (r : decode_result) (code : string) initial_storage : a_single_result :=
     match r with
     | decode_success prog =>
       continue {|
         a_stc := nil;
         a_mem := Aempty;
-        a_str := Ainitial_storage;
+        a_str := initial_storage;
         a_log := nil;
         a_program := prog;
         a_program_code := match code with
@@ -1721,7 +1721,7 @@ Module AbstractEVM.
     | decode_failure reason => decode_fail reason
     end.
 
-Definition a_run a_word_eq number_checker n code :=
-  (a_exec nil number_checker a_word_eq n (a_ex (decode code) code)).
+Definition a_run a_word_eq number_checker n code initial_storage :=
+  (a_exec nil number_checker a_word_eq n (a_ex (decode code) code initial_storage)).
 
 End AbstractEVM.
