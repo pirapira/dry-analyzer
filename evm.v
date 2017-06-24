@@ -686,12 +686,15 @@ Module AbstractEVM.
   Definition Aadd' (a : a_word) (b : a_word) :=
     match a, b with
     | Aimm_nat m, Aimm_nat n => Aimm_nat (m + n)
+    | _, Azero => a
+    | Azero, _ => b
     | _, _ => Aadd a b
     end.
 
   Definition Asub' (a : a_word) (b : a_word) :=
     match a, b with
-    | Aimm_nat m, Aimm_nat n => Aimm_nat (m - n)
+    | Aimm_nat m, Aimm_nat n =>
+      if (N.leb n m) then Aimm_nat (m - n) else Asub a b
     | _, _ => Asub a b
     end.
 
