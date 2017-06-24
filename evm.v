@@ -674,6 +674,15 @@ Module AbstractEVM.
       Atake start size mem
     end.
 
+  Fixpoint Aget_storage' (index : a_word) (str : a_storage) : a_word :=
+    match index, str with
+    | _, Ainitial_storage => Aget_storage index str
+    | Aimm_nat i, Aput_storage (Aimm_nat j) x orig =>
+      if N.eqb i j then x else
+        Aget_storage' (Aimm_nat i) orig
+    | _, _ => Aget_storage index str
+    end.
+
   Definition Aadd' (a : a_word) (b : a_word) :=
     match a, b with
     | Aimm_nat m, Aimm_nat n => Aimm_nat (m + n)
@@ -700,6 +709,7 @@ Module AbstractEVM.
       if orb (N.leb 32 (n - w)) (N.leb 32 (w - n)) then
         Aget32' addr orig
       else if (N.eqb n w) then v else Aget32 addr mem
+    | _, Aempty => Azero
     | _, _ => Aget32 addr mem
     end.
 
@@ -873,7 +883,7 @@ Module AbstractEVM.
   Definition a_xor_op : a_operation := a_two_one_op Axor.
 
   Definition a_sload storage : a_operation :=
-    a_one_one_op (fun addr => Aget_storage addr storage).
+    a_one_one_op (fun addr => Aget_storage' addr storage).
 
   Definition a_calldataload : a_operation :=
     a_one_one_op (fun n => Aget32' n Adata).
