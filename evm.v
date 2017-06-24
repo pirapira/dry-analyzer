@@ -1644,6 +1644,7 @@ Module AbstractEVM.
   Definition satisfiable (a_word_eq : a_word -> a_word -> bool) (cond : a_prop) : bool :=
     match cond with
     | is_zero (Aimm_nat x) => Neqb x 0
+    | is_not_zero (Aimm_nat x) => negb (Neqb x 0)
     | _ => true
     end.
 
