@@ -713,6 +713,13 @@ Module AbstractEVM.
         Aget32' addr orig
       else if (N.eqb n w) then v else Aget32 addr mem
     | _, Aempty => Azero
+    | Aimm_nat n, Acodecopy (Aimm_nat mem_start) _ (Aimm_nat size) orig =>
+      if N.leb (n + 32) mem_start then
+        Aget32' addr orig
+      else if N.leb (mem_start + size) n then
+             Aget32' addr orig
+           else
+             Aget32 addr mem
     | _, _ => Aget32 addr mem
     end.
 

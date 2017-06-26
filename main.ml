@@ -128,7 +128,12 @@ and a_memory_to_str m block  =
     | Atake (start, size, orig) -> Printf.sprintf "(take %s bytes at %s from %s)"
       (a_val_to_str size) (a_val_to_str start) (a_memory_to_str orig block)
     | Amem_imm _ -> "a_mem_to_str imm not implemented"
-    | Acodecopy _ -> "a_mem_to_str: codecopy not implemented"
+    | Acodecopy (memstart, codestart, size, orig) ->
+       Printf.sprintf "(codecopy mem: %s, code: %s, size: %s, on %s)"
+                      (a_val_to_str memstart)
+                      (a_val_to_str codestart)
+                      (a_val_to_str size)
+                      (a_memory_to_str orig block)
     | Aconcat (w0, w1) ->
        Printf.sprintf "(concat %s %s)" (a_val_to_str w0) (a_val_to_str w1)
     end^(if block then "</div>" else "</span>")
