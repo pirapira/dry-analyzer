@@ -476,6 +476,7 @@ Storage (optional):<br>
     try
       let filtered = filter_hex code in
       let steps = (if filtered = "0x0x0x" then 400 else int_of_string steps) in
+      let steps = if steps < 0 then 0 else steps in
       let code_coq : char list = BatString.explode filtered in
       let storage_coq : Evm.AbstractEVM.a_storage = parse_storage (Uri.get_query_param uri "storage") in
       let (result, result_len)  =
