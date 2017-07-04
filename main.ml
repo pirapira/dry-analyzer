@@ -430,6 +430,9 @@ let parse_storage (input : string option) : Evm.AbstractEVM.a_storage =
   ;;
 
 
+let generate_link code steps =
+  Printf.sprintf "./?nsteps=%s&contract=%s" (string_of_int steps) code
+
 let body_creator uri meth headers =
   (fun body ->
    ((Printf.sprintf "<html>
@@ -473,6 +476,7 @@ Storage (optional):<br>
     try
       let filtered = filter_hex code in
       let steps = (if filtered = "0x0x0x" then 400 else int_of_string steps) in
+      let steps = if steps < 0 then 0 else steps in
       let code_coq : char list = BatString.explode filtered in
       let storage_coq : Evm.AbstractEVM.a_storage = parse_storage (Uri.get_query_param uri "storage") in
       let (result, result_len)  =
@@ -483,9 +487,13 @@ Storage (optional):<br>
 <pre style=\"word-break: break-all; white-space: pre-wrap;\">%s</pre>
 <h2>Behaviors</h2>
 <p>%d behaviors cover the possibilities (assuming enough gas).</p>
+<p><a href=\"%s\">back</a> <a href=\"%s\">fwd</a></p>
 "
 (filter_hex code)
-(Big_int.int_of_big_int result_len))^
+(Big_int.int_of_big_int result_len)
+(generate_link filtered (steps - 1))
+(generate_link filtered (steps + 1))
+)^
 (BatString.concat "\n" (List.mapi show_result result))
       with TooManyCases ->
 	Printf.sprintf "<h2>Results</h2><p>Too many behaviors found.  Maybe there is a loop.</p>"
