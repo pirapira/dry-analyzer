@@ -430,6 +430,9 @@ let parse_storage (input : string option) : Evm.AbstractEVM.a_storage =
   ;;
 
 
+let generate_link code steps =
+  Printf.sprintf "./?nsteps=%s&contract=%s" (string_of_int steps) code
+
 let body_creator uri meth headers =
   (fun body ->
    ((Printf.sprintf "<html>
@@ -483,9 +486,13 @@ Storage (optional):<br>
 <pre style=\"word-break: break-all; white-space: pre-wrap;\">%s</pre>
 <h2>Behaviors</h2>
 <p>%d behaviors cover the possibilities (assuming enough gas).</p>
+<p><a href=\"%s\">back</a> <a href=\"%s\">fwd</a></p>
 "
 (filter_hex code)
-(Big_int.int_of_big_int result_len))^
+(Big_int.int_of_big_int result_len)
+(generate_link filtered (steps - 1))
+(generate_link filtered (steps + 1))
+)^
 (BatString.concat "\n" (List.mapi show_result result))
       with TooManyCases ->
 	Printf.sprintf "<h2>Results</h2><p>Too many behaviors found.  Maybe there is a loop.</p>"
