@@ -423,15 +423,13 @@ let rec parse_storage_inner (strs : string list) (current : Evm.AbstractEVM.a_st
      let v = Big_int.big_int_of_string v in
      parse_storage_inner rest Evm.AbstractEVM.(Aput_storage (Aimm_nat k, Aimm_nat v, current))
 
-let parse_storage (input : string option) : Evm.AbstractEVM.a_storage =
-  match input with
-  | None -> Evm.AbstractEVM.Ainitial_storage
-  | Some str -> parse_storage_inner (Str.split (Str.regexp "[ \t\n\012\r]+") str) Evm.AbstractEVM.Ainitial_storage
+let parse_storage (input : string) : Evm.AbstractEVM.a_storage =
+  parse_storage_inner (Str.split (Str.regexp "[ \t\n\012\r]+") input) Evm.AbstractEVM.Ainitial_storage
   ;;
 
 
-let generate_link code steps =
-  Printf.sprintf "./?nsteps=%s&contract=%s" (string_of_int steps) code
+let generate_link code steps storage_str =
+  Printf.sprintf "./?nsteps=%s&contract=%s&storage=%s" (string_of_int steps) code (Netencoding.Url.encode storage_str)
 
 let body_creator uri meth headers =
   (fun body ->
@@ -478,7 +476,11 @@ Storage (optional):<br>
       let steps = (if filtered = "0x0x0x" then 400 else int_of_string steps) in
       let steps = if steps < 0 then 0 else steps in
       let code_coq : char list = BatString.explode filtered in
-      let storage_coq : Evm.AbstractEVM.a_storage = parse_storage (Uri.get_query_param uri "storage") in
+      let storage_str : string =
+        (match Uri.get_query_param uri "storage" with
+        | None -> ""
+        | Some str -> str) in
+      let storage_coq : Evm.AbstractEVM.a_storage = parse_storage storage_str in
       let (result, result_len)  =
 	a_run aval_eq number_checker steps code_coq storage_coq
     in
@@ -491,8 +493,8 @@ Storage (optional):<br>
 "
 (filter_hex code)
 (Big_int.int_of_big_int result_len)
-(generate_link filtered (steps - 1))
-(generate_link filtered (steps + 1))
+(generate_link filtered (steps - 1) storage_str)
+(generate_link filtered (steps + 1) storage_str)
 )^
 (BatString.concat "\n" (List.mapi show_result result))
       with TooManyCases ->
