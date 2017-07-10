@@ -1146,7 +1146,20 @@ Module AbstractEVM.
     ; a_prg_sfx : list Lang.instr
     ; a_program : list Lang.instr
     ; a_program_code : string
+    ; last_instruction : Lang.instr
     }.
+
+  Definition update_last_instruction (s : a_state) (i : Lang.instr) :=
+    {|
+      a_stc := s.(a_stc);
+      a_mem := s.(a_mem);
+      a_str := s.(a_str);
+      a_log := s.(a_log);
+      a_prg_sfx := s.(a_prg_sfx);
+      a_program := s.(a_program);
+      a_program_code := s.(a_program_code);
+      last_instruction := i
+    |}.
 
   Record a_call :=
     { a_call_gaslimit   : a_word
@@ -1237,7 +1250,7 @@ Module AbstractEVM.
   Definition a_result_from_list lst : a_result :=
     (lst, len lst).
 
-  Definition a_operation_sem (op : a_operation) (pre: a_state) : a_result :=
+  Definition a_operation_sem (instr : Lang.instr) (op : a_operation) (pre: a_state) : a_result :=
     match pre.(a_prg_sfx) with
       | nil => ((nil, end_of_program pre) :: nil, 0)
       | _ :: tl =>
@@ -1257,7 +1270,8 @@ Module AbstractEVM.
                                 a_log := pre.(a_log) ;
                                 a_program := pre.(a_program);
                                 a_prg_sfx := tl;
-                                a_program_code := pre.(a_program_code)
+                                a_program_code := pre.(a_program_code);
+                                last_instruction := instr
                              |})
                end)
             (op pre.(a_stc) pre.(a_mem)))
@@ -1274,7 +1288,7 @@ Module AbstractEVM.
     | S n', nil => None
     end.
 
-  Definition a_log_n (n : nat) (pre : a_state) : a_result :=
+  Definition a_log_n (n : nat) (instr : Lang.instr) (pre : a_state) : a_result :=
     match pre.(a_prg_sfx) with
     | nil => ((nil, failure pre) :: nil, 1)
     | _ :: prg_tl =>
@@ -1295,14 +1309,15 @@ Module AbstractEVM.
                          |} :: pre.(a_log); (* XXX: log is cons'ed, not appended at the end!!! *)
                        a_program := pre.(a_program);
                        a_program_code := pre.(a_program_code);
-                       a_prg_sfx := prg_tl
+                       a_prg_sfx := prg_tl;
+                       last_instruction := instr
                     |}) :: nil, 1)
         end
       | _ => ((nil, failure pre) :: nil, 1)
       end
     end.
 
-  Definition a_noop (pre : a_state) : a_result :=
+  Definition a_noop (instr : Lang.instr) (pre : a_state) : a_result :=
     match pre.(a_prg_sfx) with
     | nil => ((nil, end_of_program pre) :: nil, 1)
     | _ :: tl =>
@@ -1313,11 +1328,12 @@ Module AbstractEVM.
                   a_log := pre.(a_log);
                   a_program := pre.(a_program);
                   a_program_code := pre.(a_program_code);
-                  a_prg_sfx := tl
+                  a_prg_sfx := tl;
+                  last_instruction := instr
                |}) :: nil, 1)
     end.
 
-  Definition a_reader (f : a_state -> a_word) (pre : a_state) : a_result :=
+  Definition a_reader (f : a_state -> a_word) (instr : Lang.instr) (pre : a_state) : a_result :=
     match pre.(a_prg_sfx) with
       | nil => ((nil, end_of_program pre) :: nil, 1)
       | _ :: tl =>
@@ -1327,7 +1343,8 @@ Module AbstractEVM.
                     a_log := pre.(a_log) ;
                     a_program := pre.(a_program);
                     a_program_code := pre.(a_program_code);
-                    a_prg_sfx := tl
+                    a_prg_sfx := tl;
+                    last_instruction := instr
                  |}) :: nil, 1)
     end.
 
@@ -1342,48 +1359,50 @@ Module AbstractEVM.
   Definition check_jump_dst lst prestate c :=
     match lst with
     | JUMPDEST :: _ => c
-    | _ => failure prestate
+    | _ => failure
+             (update_last_instruction prestate JUMP)
     end.
 
   Definition a_instr_sem (i : instr) : a_state -> a_result :=
+    let a_operation_sem' := a_operation_sem i in
     match i with
       | STOP => (fun pre => ((nil, stopped pre) :: nil, 1))
-      | ADD => a_operation_sem a_add_op
-      | MUL => a_operation_sem a_mul_op
-      | SUB => a_operation_sem a_sub_op
-      | DIV => a_operation_sem a_div_op
-      | SDIV => a_operation_sem a_sdiv_op
-      | MOD => a_operation_sem a_mod_op
-      | SMOD => a_operation_sem a_smod_op
-      | ADDMOD => a_operation_sem a_addmod_op
-      | MULMOD => a_operation_sem a_mulmod_op
-      | SIGNEXTEND => a_operation_sem a_signextend_op
-      | EXP => a_operation_sem a_exp_op
-      | GT  => a_operation_sem a_gt_op
-      | LT  => a_operation_sem a_lt_op
-      | SLT => a_operation_sem a_slt_op
-      | SGT => a_operation_sem a_sgt_op
-      | EQ => a_operation_sem a_eq_op
-      | AND => a_operation_sem a_and_op
-      | OR  => a_operation_sem a_or_op
-      | XOR => a_operation_sem a_xor_op
-      | NOT => a_operation_sem a_not_op
-      | BYTE => a_operation_sem a_byte_op
-      | ISZERO => a_operation_sem a_iszero
-      | GAS    => a_reader (fun _ => Aunknown "remaining_gas")
-      | CALLER => a_reader (fun _ => Acaller)
-      | CALLVALUE => a_reader (fun _ => Avalue)
-      | CALLDATALOAD => a_operation_sem a_calldataload
-      | CALLDATASIZE => a_operation_sem a_calldatasize
-      | CALLDATACOPY => a_operation_sem a_calldatacopy
-      | BALANCE => a_operation_sem a_balance
-      | ADDRESS => a_operation_sem a_address
-      | TIMESTAMP => a_reader (fun _ => Atime)
-      | POP =>    a_operation_sem a_pop
-      | MLOAD  => a_operation_sem a_mload
-      | MSTORE => a_operation_sem a_mstore
-      | MSTORE8 => a_operation_sem a_mstore8
-      | SLOAD => (fun pre => a_operation_sem (a_sload pre.(a_str)) pre)
+      | ADD => a_operation_sem ADD a_add_op
+      | MUL => a_operation_sem MUL a_mul_op
+      | SUB => a_operation_sem SUB a_sub_op
+      | DIV => a_operation_sem DIV a_div_op
+      | SDIV => a_operation_sem SDIV a_sdiv_op
+      | MOD => a_operation_sem MOD a_mod_op
+      | SMOD => a_operation_sem SMOD a_smod_op
+      | ADDMOD => a_operation_sem ADDMOD a_addmod_op
+      | MULMOD => a_operation_sem MULMOD a_mulmod_op
+      | SIGNEXTEND => a_operation_sem SIGNEXTEND a_signextend_op
+      | EXP => a_operation_sem EXP a_exp_op
+      | GT  => a_operation_sem GT a_gt_op
+      | LT  => a_operation_sem LT a_lt_op
+      | SLT => a_operation_sem SLT a_slt_op
+      | SGT => a_operation_sem SGT a_sgt_op
+      | EQ => a_operation_sem EQ a_eq_op
+      | AND => a_operation_sem' a_and_op
+      | OR  => a_operation_sem' a_or_op
+      | XOR => a_operation_sem' a_xor_op
+      | NOT => a_operation_sem' a_not_op
+      | BYTE => a_operation_sem' a_byte_op
+      | ISZERO => a_operation_sem ISZERO a_iszero
+      | GAS    => a_reader (fun _ => Aunknown "remaining_gas") GAS
+      | CALLER => a_reader (fun _ => Acaller) CALLER
+      | CALLVALUE => a_reader (fun _ => Avalue) CALLVALUE
+      | CALLDATALOAD => a_operation_sem' a_calldataload
+      | CALLDATASIZE => a_operation_sem' a_calldatasize
+      | CALLDATACOPY => a_operation_sem' a_calldatacopy
+      | BALANCE => a_operation_sem' a_balance
+      | ADDRESS => a_operation_sem' a_address
+      | TIMESTAMP => a_reader (fun _ => Atime) TIMESTAMP
+      | POP =>    a_operation_sem' a_pop
+      | MLOAD  => a_operation_sem' a_mload
+      | MSTORE => a_operation_sem' a_mstore
+      | MSTORE8 => a_operation_sem' a_mstore8
+      | SLOAD => (fun pre => a_operation_sem' (a_sload pre.(a_str)) pre)
       | SSTORE => (fun pre =>
                      simple_result'
                      match pre.(a_stc) with
@@ -1400,7 +1419,8 @@ Module AbstractEVM.
                              a_log := pre.(a_log);
                              a_program := pre.(a_program);
                              a_program_code := pre.(a_program_code);
-                             a_prg_sfx := cont
+                             a_prg_sfx := cont;
+                             last_instruction := SSTORE
                            |}
                        end
                      end)
@@ -1424,7 +1444,8 @@ Module AbstractEVM.
                        a_log := pre.(a_log);
                        a_program := pre.(a_program);
                        a_program_code := pre.(a_program_code);
-                       a_prg_sfx := sfx
+                       a_prg_sfx := sfx;
+                       last_instruction := JUMP
                      |})
                    | _ => not_implemented i pre
                    end
@@ -1446,7 +1467,8 @@ Module AbstractEVM.
                               a_log := pre.(a_log);
                               a_program := pre.(a_program);
                               a_program_code := pre.(a_program_code);
-                              a_prg_sfx := tl
+                              a_prg_sfx := tl;
+                              last_instruction := JUMPI
                             |}
                         end)
                         ::
@@ -1466,7 +1488,8 @@ Module AbstractEVM.
                             a_log := pre.(a_log);
                             a_program := pre.(a_program);
                             a_program_code := pre.(a_program_code);
-                            a_prg_sfx := sfx
+                            a_prg_sfx := sfx;
+                            last_instruction := JUMPI
                           |}))
                         :: nil)
                     | _ => simple_result' (not_implemented i pre)
@@ -1483,47 +1506,48 @@ Module AbstractEVM.
                             a_log := pre.(a_log);
                             a_program := pre.(a_program);
                             a_program_code := pre.(a_program_code);
-                            a_prg_sfx := tl
+                            a_prg_sfx := tl;
+                            last_instruction := JUMPDEST
                             |} )
                     end)
-      | PUSH_N str => a_operation_sem (a_push_x (Aimm str))
-      | DUP1 => a_operation_sem a_dup1
-      | DUP2 => a_operation_sem a_dup2
-      | DUP3 => a_operation_sem a_dup3
-      | DUP4 => a_operation_sem a_dup4
-      | DUP5 => a_operation_sem (a_dup_n 5)
-      | DUP6 => a_operation_sem (a_dup_n 6)
-      | DUP7 => a_operation_sem (a_dup_n 7)
-      | DUP8 => a_operation_sem (a_dup_n 8)
-      | DUP9 => a_operation_sem (a_dup_n 9)
-      | DUP10 => a_operation_sem (a_dup_n 10)
-      | DUP11 => a_operation_sem (a_dup_n 11)
-      | DUP12 => a_operation_sem (a_dup_n 12)
-      | DUP13 => a_operation_sem (a_dup_n 13)
-      | DUP14 => a_operation_sem (a_dup_n 14)
-      | DUP15 => a_operation_sem (a_dup_n 15)
-      | DUP16 => a_operation_sem (a_dup_n 16)
-      | SWAP1 => a_operation_sem a_swap1
-      | SWAP2 => a_operation_sem a_swap2
-      | SWAP3 => a_operation_sem a_swap3
-      | SWAP4 => a_operation_sem a_swap4
-      | SWAP5 => a_operation_sem a_swap5
-      | SWAP6 => a_operation_sem a_swap6
-      | SWAP7 => a_operation_sem a_swap7
-      | SWAP8 => a_operation_sem a_swap8
-      | SWAP9 => a_operation_sem a_swap9
-      | SWAP10 => a_operation_sem a_swap10
-      | SWAP11 => a_operation_sem a_swap11
-      | SWAP12 => a_operation_sem a_swap12
-      | SWAP13 => a_operation_sem a_swap13
-      | SWAP14 => a_operation_sem a_swap14
-      | SWAP15 => a_operation_sem a_swap15
-      | SWAP16 => a_operation_sem a_swap16
-      | LOG0 => a_log_n 0
-      | LOG1 => a_log_n 1
-      | LOG2 => a_log_n 2
-      | LOG3 => a_log_n 3
-      | LOG4 => a_log_n 4
+      | PUSH_N str => a_operation_sem' (a_push_x (Aimm str))
+      | DUP1 => a_operation_sem' a_dup1
+      | DUP2 => a_operation_sem' a_dup2
+      | DUP3 => a_operation_sem' a_dup3
+      | DUP4 => a_operation_sem' a_dup4
+      | DUP5 => a_operation_sem' (a_dup_n 5)
+      | DUP6 => a_operation_sem' (a_dup_n 6)
+      | DUP7 => a_operation_sem' (a_dup_n 7)
+      | DUP8 => a_operation_sem' (a_dup_n 8)
+      | DUP9 => a_operation_sem' (a_dup_n 9)
+      | DUP10 => a_operation_sem' (a_dup_n 10)
+      | DUP11 => a_operation_sem' (a_dup_n 11)
+      | DUP12 => a_operation_sem' (a_dup_n 12)
+      | DUP13 => a_operation_sem' (a_dup_n 13)
+      | DUP14 => a_operation_sem' (a_dup_n 14)
+      | DUP15 => a_operation_sem' (a_dup_n 15)
+      | DUP16 => a_operation_sem' (a_dup_n 16)
+      | SWAP1 => a_operation_sem' a_swap1
+      | SWAP2 => a_operation_sem' a_swap2
+      | SWAP3 => a_operation_sem' a_swap3
+      | SWAP4 => a_operation_sem' a_swap4
+      | SWAP5 => a_operation_sem' a_swap5
+      | SWAP6 => a_operation_sem' a_swap6
+      | SWAP7 => a_operation_sem' a_swap7
+      | SWAP8 => a_operation_sem' a_swap8
+      | SWAP9 => a_operation_sem' a_swap9
+      | SWAP10 => a_operation_sem' a_swap10
+      | SWAP11 => a_operation_sem' a_swap11
+      | SWAP12 => a_operation_sem' a_swap12
+      | SWAP13 => a_operation_sem' a_swap13
+      | SWAP14 => a_operation_sem' a_swap14
+      | SWAP15 => a_operation_sem' a_swap15
+      | SWAP16 => a_operation_sem' a_swap16
+      | LOG0 => a_log_n 0 LOG0
+      | LOG1 => a_log_n 1 LOG1
+      | LOG2 => a_log_n 2 LOG2
+      | LOG3 => a_log_n 3 LOG3
+      | LOG4 => a_log_n 4 LOG4
       | CALL =>
         (fun pre =>
            simple_result'
@@ -1609,23 +1633,23 @@ Module AbstractEVM.
                         | hd :: _ => suicide hd
                       end
                    )
-      | CODECOPY => a_operation_sem a_codecopy
-      | SHA3 => a_operation_sem a_sha3
-      | ORIGIN => a_reader (fun _ => Aorigin)
-      | CODESIZE => a_reader (fun state => Aimm_nat (program_bytes state.(a_program)))
-      | GASPRICE => a_reader (fun _ => Agas_price)
-      | NUMBER => a_reader (fun _ => Ablock_number)
-      | COINBASE => a_reader (fun _ => Acoinbase)
-      | BLOCKHASH => a_reader (fun _ => Ablockhash)
-      | DIFFICULTY => a_reader (fun _ => Adifficulty)
-      | GASLIMIT => a_reader (fun _ => Agaslimit)
-      | MSIZE => a_operation_sem a_msize
+      | CODECOPY => a_operation_sem' a_codecopy
+      | SHA3 => a_operation_sem' a_sha3
+      | ORIGIN => a_reader (fun _ => Aorigin) ORIGIN
+      | CODESIZE => a_reader (fun state => Aimm_nat (program_bytes state.(a_program))) CODESIZE
+      | GASPRICE => a_reader (fun _ => Agas_price) GASPRICE
+      | NUMBER => a_reader (fun _ => Ablock_number) NUMBER
+      | COINBASE => a_reader (fun _ => Acoinbase) COINBASE
+      | BLOCKHASH => a_reader (fun _ => Ablockhash) BLOCKHASH
+      | DIFFICULTY => a_reader (fun _ => Adifficulty) DIFFICULTY
+      | GASLIMIT => a_reader (fun _ => Agaslimit) GASLIMIT
+      | MSIZE => a_operation_sem' a_msize
       | PC => a_reader (fun state =>
                           Aimm_nat
                             (  program_bytes state.(a_program)
                              - program_bytes state.(a_prg_sfx))
-                       )
-      | EXTCODESIZE => a_operation_sem a_extcodesize
+                       ) PC
+      | EXTCODESIZE => a_operation_sem' a_extcodesize
       | EXTCODECOPY =>
         (fun pre =>
            simple_result'
@@ -1737,7 +1761,8 @@ Module AbstractEVM.
                           | String "0" (String "x" y) => y
                           | _ => code
                           end ;
-        a_prg_sfx := prog
+        a_prg_sfx := prog;
+        last_instruction := JUMPDEST
       |}
     | decode_failure reason => decode_fail reason
     end.

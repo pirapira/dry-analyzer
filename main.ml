@@ -286,7 +286,8 @@ let stack_to_str stc =
 
 let state_to_str s =
   Printf.sprintf
-  ("{<div style='margin-left:1em;'>  stack: %s<br>  memory: %s<br>  storage: %s<br>  log: XXX<br>  remaining_program: XXX</div>}")
+  ("{<div style='margin-left:1em;'>  last instruction: %s<br>  stack: %s<br>  memory: %s<br>  storage: %s<br>  log: XXX<br>  remaining_program: XXX</div>}")
+    (istr_to_str s.last_instruction)
     (stack_to_str s.a_stc)
     (a_memory_to_str s.a_mem true)
     (a_storage_to_str s.a_str true)
