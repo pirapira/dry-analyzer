@@ -5,7 +5,7 @@
 ## How to use
 
 * Install OCaml (4.02.3 works) and [opam](https://opam.ocaml.org/)
-* `opam install lwt cohttp coq getopt batteries`
+* `opam install lwt cohttp coq getopt batteries ocamlnet`
 * `make`
 * `./main.native -p 9999`
 * access [localhost:9999](http://localhost:9999)
